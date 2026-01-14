@@ -1039,11 +1039,17 @@ body.kiosk-mode .kiosk-btn-group{ gap: 12px; }
 }
 
 /* Kiosk exit button: clearer */
-body.kiosk-mode .kiosk-exit-btn{
-  background: rgba(255,255,255,.85) !important;
-  box-shadow: 0 22px 50px rgba(2,6,23,.18) !important;
+/* 종료 버튼 위치 수정 (상단 오른쪽) */
+body.kiosk-mode .kiosk-exit-btn {
+    display: flex !important;
+    top: 25px !important;    /* 위쪽으로 이동 */
+    right: 25px !important;  /* 오른쪽 벽에 붙임 */
+    bottom: auto !important; /* 아래쪽 해제 */
+    left: auto !important;   /* 왼쪽 해제 */
+    width: 45px; 
+    height: 45px;
+    opacity: 0.4; /* 평소엔 연하게 */
 }
-
 /* Kiosk header chips slightly more premium */
 body.kiosk-mode .kiosk-header{
   border-radius: 26px !important;
@@ -1057,6 +1063,210 @@ body.kiosk-mode .kiosk-header{
     body.show-admin .admin-only {
         display: inline-flex !important;
     }
+/* =========================================
+   1. 메뉴 버튼 상단 배치 & 모바일 최적화
+   ========================================= */
+.tabs {
+    position: sticky; /* 스크롤 내려도 상단에 고정 */
+    top: 0;
+    z-index: 90;
+    margin: 0 0 15px 0;
+    padding: 8px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 0 0 16px 16px; /* 아래쪽만 둥글게 */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    width: 100%; /* 가로 꽉 차게 */
+    left: 0;
+}
+/* 탭 버튼 스타일 단순화 */
+.tab-btn {
+    border-radius: 12px;
+    font-size: 14px;
+    padding: 8px 0; /* 높이 조절 */
+}
+
+/* 본문 여백 재조정 (버튼이 위로 갔으므로 아래 여백 제거) */
+body { padding-bottom: 20px !important; }
+#register { padding-bottom: 20px !important; }
+
+
+/* =========================================
+   2. [출석부 모드] 3D 입체 버튼 & 카드 디자인
+   ========================================= */
+
+/* (1) 분류 버튼 (전체, 미취학...) - 입체감 강화 */
+.kiosk-header {
+    gap: 8px;
+    padding: 10px;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+.k-filter-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-bottom: 4px solid #94a3b8; /* 두꺼운 하단 테두리로 3D 효과 */
+    border-radius: 12px;
+    color: #64748b;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 800;
+    transform: translateY(0);
+    transition: all 0.1s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+.k-filter-btn:active, 
+.k-filter-btn.active {
+    background: #ffeb3b; /* 쨍한 노란색 */
+    color: #5d4037;
+    border-color: #fbc02d;
+    border-bottom-width: 2px; /* 눌렸을 때 높이 줄임 */
+    transform: translateY(2px); /* 눌리는 애니메이션 */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* (2) 학생 카드 상태별 디자인 (확실한 구분) */
+body.kiosk-mode .student-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    height: 320px; /* 카드 높이 조정 */
+}
+
+/* [상태 1: 미등원] - 깔끔한 흰색 */
+body.kiosk-mode .student-card.missing {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 0 #cbd5e1; /* 회색 그림자 */
+    opacity: 1;
+}
+body.kiosk-mode .student-card.missing .profile-img {
+    filter: grayscale(0%); /* 사진 선명하게 */
+}
+
+/* [상태 2: 등원완료] - 눈에 띄는 초록색 테두리 & 입체감 */
+body.kiosk-mode .student-card.arrived {
+    background: linear-gradient(135deg, #ffffff 40%, #dcfce7 100%);
+    border: 3px solid #22c55e; /* 굵은 초록 테두리 */
+    box-shadow: 0 8px 0 #15803d; /* 진한 초록 그림자 */
+    transform: translateY(-2px);
+}
+body.kiosk-mode .student-card.arrived .kiosk-pill {
+    background: #22c55e; 
+    color: white;
+    border: none;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(34,197,94,0.4);
+}
+
+/* [상태 3: 하원완료] - 어둡고 흐릿하게 (확실히 꺼진 느낌) */
+body.kiosk-mode .student-card.left {
+    background: #f1f5f9;
+    border: 2px dashed #94a3b8;
+    box-shadow: none; /* 그림자 없음 (납작하게) */
+    opacity: 0.5; /* 반투명 */
+    transform: scale(0.95); /* 약간 축소 */
+    filter: grayscale(100%); /* 흑백 처리 */
+}
+
+/* 키오스크 모드에서 불필요한 요소 완벽 제거 */
+body.kiosk-mode .tabs,
+body.kiosk-mode header, 
+body.kiosk-mode .kiosk-btn-group,
+body.kiosk-mode .kiosk-exit-btn {
+    /* 저장/취소/메뉴 등 버튼 아예 안 보이게 처리 */
+    /* 단, 종료 버튼이 필요하면 kiosk-exit-btn은 제외하세요 */
+   display: none !important; 
+}
+
+/* 종료 버튼은 비상용으로 좌측 하단에 투명하게 숨김 (세 번 탭 기능 등 대체 가능하지만 일단 작게 표시) */
+body.kiosk-mode .kiosk-exit-btn {
+    display: flex !important;
+    top: auto; bottom: 20px; left: 20px; right: auto;
+    width: 40px; height: 40px;
+    opacity: 0.3;
+}
+/* (혹시 모를 키오스크 상단 분류 버튼도 같이 고정 해제) */
+.kiosk-header {
+    position: relative !important;
+    top: auto !important;
+}
+/* [수정] 일반 모드 원생 카드 사진 확대 */
+
+/* 1. 카드 전체 높이를 늘림 (사진이 커진 만큼 공간 확보) */
+.student-card {
+    height: 210px !important; /* 기존 170px -> 210px로 변경 */
+}
+
+/* 2. 사진 크기를 대폭 확대 */
+.profile-wrapper {
+    width: 100px !important;  /* 기존 64px -> 100px */
+    height: 100px !important; /* 정사각형 유지 */
+    margin-bottom: 12px !important; /* 사진과 이름 사이 간격 벌림 */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08); /* 그림자도 살짝 진하게 */
+}
+
+/* 3. 사진 테두리 둥글기 조절 (선택사항) */
+.profile-img {
+    border-radius: 30px !important; /* 조금 더 둥글게 */
+}
+
+/* 4. 이름 글자 크기도 균형에 맞춰 약간 키움 */
+.info-area div:first-child {
+    font-size: 17px !important;
+    margin-bottom: 5px !important;
+}
+/* [수정] 브랜드 로고 및 타이틀 크기 확대 */
+.brand-mark {
+    width: 54px !important;       /* 로고 가로 크기 (기존 38px) */
+    height: 54px !important;      /* 로고 세로 크기 */
+    border-radius: 18px !important; /* 모서리 둥글기 */
+    box-shadow: 0 4px 12px rgba(59,130,246,0.25) !important; /* 그림자 강조 */
+}
+
+.brand-title strong {
+    font-size: 21px !important;   /* 제목 글자 크기 (기존 16px) */
+    letter-spacing: -0.5px !important; /* 자간 조절 */
+    margin-bottom: 3px !important;
+}
+
+.brand-title span {
+    font-size: 13px !important;   /* 아래 작은 설명글도 살짝 키움 */
+    color: #64748b !important;    /* 글자색을 조금 더 진하게 */
+}
+
+/* 로고와 글자 사이 간격도 조금 넓힘 */
+.brand {
+    gap: 14px !important;
+}
+/* [수정] 학습일정 체크박스 크기 조절 및 정렬 */
+#calendar .filter-group {
+    display: flex !important;       /* 가로로 나란히 배치 */
+    justify-content: center !important; /* 가운데 정렬 */
+    gap: 24px !important;           /* '학원일정'과 '생일' 사이 간격 */
+    margin-bottom: 18px !important;
+}
+
+#calendar .filter-group label {
+    display: inline-flex !important; /* 글자와 체크박스를 한 줄로 */
+    align-items: center !important;  /* 수직 중앙 정렬 */
+    gap: 8px !important;             /* 체크박스와 글자 사이 간격 */
+    font-size: 15px !important;      /* 글자 크기 적당하게 */
+    font-weight: 700 !important;     /* 글자 굵게 */
+    cursor: pointer;
+    width: auto !important;          /* 꽉 차는 문제 해결 */
+    margin: 0 !important;
+}
+
+#calendar .filter-group input[type="checkbox"] {
+    width: 22px !important;          /* 가로 크기 축소 */
+    height: 22px !important;         /* 세로 크기 축소 */
+    min-height: 0 !important;        /* 최소 높이 제한 해제 */
+    margin: 0 !important;            /* 불필요한 여백 제거 */
+    accent-color: #3B82F6;           /* 체크했을 때 브랜드 색상(파랑) */
+    cursor: pointer;
+    transform: translateY(-1px);     /* 글자와 높이 미세 조정 */
+}
 </style>
 </head>
 <body>
@@ -1076,7 +1286,12 @@ body.kiosk-mode .kiosk-header{
 
 <header>
         <div class="brand">
-            <img class="brand-mark" src="nam-512.png" alt="능동해냄" onerror="this.style.display='none'">
+            <img class="brand-mark" 
+                 src="nam-512.png" 
+                 alt="능동해냄" 
+                 style="background:#fff; object-fit:contain;"
+                 onerror="this.src='https://cdn-icons-png.flaticon.com/512/3468/3468306.png'">
+            
             <div class="brand-title">
                 <strong>미래엔수학 능동해냄</strong>
                 <span>학부모용 · 알림/출석/상담</span>
@@ -1087,13 +1302,12 @@ body.kiosk-mode .kiosk-header{
             <label class="admin-switch" style="margin:0; cursor:pointer;">
                 <input type="checkbox" id="adminToggle" onclick="toggleAdminMode()" style="width:auto; margin-right:6px;"> 선생님
             </label>
-           <button class="admin-only" onclick="document.getElementById('settingsModal').style.display='flex'" 
-        style="border:none; background:white; width:36px; height:36px; border-radius:50%; box-shadow:0 2px 5px rgba(0,0,0,0.1); color:#555;">
-    <i class="fas fa-cog"></i>
-</button>
+            <button class="admin-only" onclick="document.getElementById('settingsModal').style.display='flex'" 
+                style="border:none; background:white; width:36px; height:36px; border-radius:50%; box-shadow:0 2px 5px rgba(0,0,0,0.1); color:#555;">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
-    </header>
-    
+    </header>    
     <div class="tabs">
         <button class="tab-btn active" onclick="showPage('register')"><i class="fas fa-user-plus"></i> 신규 등록</button>
         <button class="tab-btn" onclick="showPage('list')"><i class="fas fa-users"></i> 원생 관리</button>
@@ -1243,14 +1457,7 @@ body.kiosk-mode .kiosk-header{
     </div>
 </div>
         
-        <div class="modal-btn-group">
-            <button class="action-btn" onclick="saveSchedule()" style="margin:0; flex:1;">저장</button>
-            <button class="action-btn" onclick="deleteSchedule()" id="btnDelSched" style="margin:0; flex:1; background:var(--danger); display:none;">삭제</button>
-            <button class="action-btn" onclick="document.getElementById('scheduleModal').style.display='none'" style="margin:0; flex:1; background:#90a4ae;">취소</button>
-        </div>
-    </div>
-</div>
-<div class="modal-overlay" id="detailModal">
+        <div class="modal-overlay" id="detailModal">
     <div class="modal">
         <button class="close-btn" onclick="closeModal()">×</button>
         
@@ -1399,12 +1606,14 @@ body.kiosk-mode .kiosk-header{
     </table>
 </div>
 
+
 <script type="module">
     // =========================================================
-    // 1. Firebase 설정 및 SDK 로드
+    // 1. Firebase 설정 및 SDK 로드 (중복 제거 및 최적화됨)
     // =========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, getDoc, setDoc, arrayUnion, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // enableIndexedDbPersistence가 포함된 import문 하나만 남깁니다.
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, getDoc, setDoc, arrayUnion, serverTimestamp, query, orderBy, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDPLl5y5xMBL07yLyQDU185qfYLa4c3yv4",
@@ -1419,6 +1628,17 @@ body.kiosk-mode .kiosk-header{
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // [속도 개선] 오프라인 데이터 유지 설정
+    enableIndexedDbPersistence(db).catch((err) => {
+        if (err.code == 'failed-precondition') {
+            console.log('탭이 여러 개 열려있어서 오프라인 모드 실패');
+        } else if (err.code == 'unimplemented') {
+            console.log('브라우저가 지원하지 않음');
+        }
+    });
+
+    // =========================================================
+    // 2. SMS 서버 설정 ... (이 아래는 그대로 두세요)
     // =========================================================
     // 2. SMS 서버 설정 (카페24 알리고)
     // =========================================================
@@ -2178,19 +2398,29 @@ body.kiosk-mode .kiosk-header{
         if(id === 'calendar' && window.renderCalendar) window.renderCalendar();
     };
 
-    // 선생님 모드 토글
+    // [수정] 선생님 모드 전환 (입력창 즉시 띄우기)
     window.toggleAdminMode = async () => {
         const chk = document.getElementById('adminToggle');
         const btnKiosk = document.getElementById('btnKioskStart');
         
         if(chk.checked) {
-            let dbPw = "1234"; 
+            // 1. [변경점] 서버에 다녀오기 전에 '먼저' 물어봅니다 (딜레이 해결)
+            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            
+            // 취소 버튼을 눌렀을 때
+            if (pw === null) {
+                chk.checked = false;
+                return;
+            }
+
+            // 2. 그 다음 서버에서 진짜 비밀번호를 가져옵니다
+            let dbPw = "1234"; // 기본값
             try {
                 const docSnap = await getDoc(doc(db, "settings", "admin"));
                 if (docSnap.exists()) dbPw = docSnap.data().password;
             } catch(e) {}
 
-            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            // 3. 입력한 값과 서버 값을 비교
             if(pw === dbPw) { 
                 document.body.classList.add('show-admin');
                 if(btnKiosk) btnKiosk.style.display = 'inline-block';
@@ -2199,6 +2429,7 @@ body.kiosk-mode .kiosk-header{
                 chk.checked = false;
             }
         } else {
+            // 체크 해제 시
             document.body.classList.remove('show-admin');
             if(btnKiosk) btnKiosk.style.display = 'none';
         }
@@ -2295,6 +2526,7 @@ body.kiosk-mode .kiosk-header{
     // =========================================================
     
     // 이미지 리사이즈
+   // 이미지 리사이즈 함수 (수정본)
     function resizeImage(file) {
         return new Promise(resolve => {
             const reader = new FileReader();
@@ -2302,10 +2534,13 @@ body.kiosk-mode .kiosk-header{
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const scale = 300/img.width; 
-                    canvas.width = 300; canvas.height = img.height * scale;
+                    // 폭을 300px -> 250px로 조금 더 줄임 (속도 향상)
+                    const scale = 250/img.width; 
+                    canvas.width = 250; canvas.height = img.height * scale;
                     canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    
+                    // 화질을 0.7 -> 0.5로 낮춤 (용량 대폭 감소)
+                    resolve(canvas.toDataURL('image/jpeg', 0.4));
                 };
                 img.src = e.target.result;
             };
@@ -2416,7 +2651,77 @@ body.kiosk-mode .kiosk-header{
         }
     };
 
-    // UI 피드백 (Toast, Sound, TTS)
+// =========================================================
+    // [수정] 모바일 강력 호환 오디오/TTS 시스템
+    // =========================================================
+    
+    // 1. 오디오 컨텍스트를 미리 생성 (모바일 잠금 해제용)
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = new AudioContext();
+
+    // 2. 소리 엔진 깨우기 (화면을 처음 터치할 때 실행)
+    function unlockAudio() {
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume().then(() => {
+                console.log("Audio Context unlocked!");
+            });
+        }
+        // 빈 소리를 한번 재생해서 스피커 권한 획득
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+
+        // 이벤트 리스너 제거 (한 번만 실행하면 됨)
+        document.body.removeEventListener('click', unlockAudio);
+        document.body.removeEventListener('touchstart', unlockAudio);
+    }
+
+    // 문서 로드 시 터치 이벤트에 '소리 깨우기' 연결
+    document.body.addEventListener('click', unlockAudio);
+    document.body.addEventListener('touchstart', unlockAudio);
+   // 3. [수정됨] 음성 안내 (TTS) - 끊김 방지 및 즉시 재생
+    function speakText(txt) {
+        if(!window.speechSynthesis) return;
+        
+        // 기존에 말하고 있던 게 있다면 즉시 멈춤 (밀림 방지)
+        window.speechSynthesis.cancel(); 
+
+        const u = new SpeechSynthesisUtterance(txt);
+        u.lang = 'ko-KR'; 
+        u.rate = 1.0; // 속도 (1.0이 보통)
+        u.pitch = 1.0; // 톤 (1.0이 보통)
+        u.volume = 1.0; // 볼륨 최대
+        
+        window.speechSynthesis.speak(u);
+    }
+
+    // 4. [수정됨] 성공 효과음 (맑은 딩동 소리)
+    function playSuccessSound() {
+        // 혹시라도 오디오가 잠겨있으면 다시 품
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        // "딩~" 하는 맑은 소리 구현
+        osc.type = 'sine'; // 부드러운 사인파
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // 도(C5)
+        osc.frequency.exponentialRampToValueAtTime(1046.5, audioCtx.currentTime + 0.1); // 도(C6)로 올라감
+
+        // 소리 크기 : 컸다가 작아짐 (여운)
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+    }
+
+    // UI 피드백 (Toast)
     function showToast(msg, type) {
         const t = document.getElementById('toast');
         if(t) {
@@ -2424,21 +2729,6 @@ body.kiosk-mode .kiosk-header{
             t.className = `toast show ${type||''}`;
             setTimeout(()=>t.classList.remove('show'), 2000);
         }
-    }
-    function speakText(txt) {
-        if(!window.speechSynthesis) return;
-        const u = new SpeechSynthesisUtterance(txt);
-        u.lang = 'ko-KR'; window.speechSynthesis.speak(u);
-    }
-    function playSuccessSound() {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.connect(g); g.connect(ctx.destination);
-        osc.frequency.setValueAtTime(600, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
-        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc.start(); osc.stop(ctx.currentTime + 0.3);
     }
 
     // 모달 탭 전환
@@ -2457,9 +2747,66 @@ body.kiosk-mode .kiosk-header{
     };
 
     // 로드 시 실행
-    window.onload = () => {
+   window.onload = () => {
         if(localStorage.getItem('isKioskMode')==='true') document.body.classList.add('kiosk-mode');
     };
+// =========================================================
+    // [추가] 모바일 좌우 슬라이드(스와이프) 기능
+    // =========================================================
+    let touchStartX = 0;
+    let touchStartY = 0;
+    
+    // 탭 순서 정의 (화면에 보이는 순서대로: 신규등록 -> 원생관리 -> 학습일정)
+    const pageOrder = ['register', 'list', 'calendar'];
+
+    document.addEventListener('touchstart', e => {
+        // 키오스크 모드이거나 모달창이 떠있을 땐 슬라이드 기능 끔
+        if(document.body.classList.contains('kiosk-mode')) return;
+        if(document.getElementById('detailModal').style.display === 'flex') return;
+        if(document.getElementById('scheduleModal').style.display === 'flex') return;
+        if(document.getElementById('settingsModal').style.display === 'flex') return;
+
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, {passive: true});
+
+    document.addEventListener('touchend', e => {
+        // 키오스크나 모달창일 땐 무시
+        if(document.body.classList.contains('kiosk-mode')) return;
+        if(document.getElementById('detailModal').style.display === 'flex') return;
+        if(document.getElementById('scheduleModal').style.display === 'flex') return;
+        if(document.getElementById('settingsModal').style.display === 'flex') return;
+
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+        
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        // 1. 가로로 움직인 거리가 50px 이상이어야 함 (너무 짧으면 무시)
+        // 2. 세로로 움직인 거리보다 가로가 더 커야 함 (스크롤 하려던 게 아니어야 함)
+        if(Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+            
+            // 현재 보고 있는 페이지 찾기
+            const currentPage = document.querySelector('.page.active');
+            if(!currentPage) return;
+            
+            const currentIndex = pageOrder.indexOf(currentPage.id);
+            if(currentIndex === -1) return;
+
+            if(diffX < 0) {
+                // 👈 왼쪽으로 밀었음 (다음 페이지로 이동)
+                if(currentIndex < pageOrder.length - 1) {
+                    window.showPage(pageOrder[currentIndex + 1]);
+                }
+            } else {
+                // 👉 오른쪽으로 밀었음 (이전 페이지로 이동)
+                if(currentIndex > 0) {
+                    window.showPage(pageOrder[currentIndex - 1]);
+                }
+            }
+        }
+    }, {passive: true});
 </script>
 
 
