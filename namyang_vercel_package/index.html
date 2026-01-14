@@ -2753,8 +2753,21 @@ body.kiosk-mode .kiosk-exit-btn {
     };
 
     // 로드 시 실행
-   window.onload = () => {
-        if(localStorage.getItem('isKioskMode')==='true') document.body.classList.add('kiosk-mode');
+// [수정] 새로고침/접속 시 무조건 '출석부 모드'로 고정
+    window.onload = () => {
+        // 1. 강제로 키오스크 모드 클래스 주입
+        document.body.classList.add('kiosk-mode');
+        
+        // 2. 선생님(관리자) 모드 해제
+        document.body.classList.remove('show-admin');
+        const chk = document.getElementById('adminToggle');
+        if(chk) chk.checked = false;
+
+        // 3. (혹시 데이터가 이미 로드된 상태라면) 리스트 갱신
+        if(window.filterList) window.filterList();
+        
+        // 4. 모바일 소리 권한 요청 (터치 대기)
+        // (이전에 추가한 unlockAudio 이벤트는 그대로 유지됩니다)
     };
 // =========================================================
     // [추가] 모바일 좌우 슬라이드(스와이프) 기능
