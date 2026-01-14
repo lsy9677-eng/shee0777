@@ -2,7 +2,7 @@
 
 1) Vercel 로그인 → Add New → Project
 2) Deploy without Git(또는 Upload) 선택
-3) 이 ZIP을 풀고, 폴더(안의 파일들) 전체를 업로드
+3) 이 ZIP을 풀고, 폴더(안의 파일들) 전체를 업 로드
 
 구성
 - index.html : 앱 화면
