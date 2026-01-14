@@ -2345,6 +2345,7 @@ body.kiosk-mode .kiosk-exit-btn {
         else showToast("이미 하원 완료 상태입니다 ✅", "warn");
     };
 
+// [수정] 빠른 출석 처리 함수 (멘트 변경됨)
     window.quickAttendance = async (id, type) => {
         const s = allStudents.find(st => st.id === id);
         if(!s) return;
@@ -2367,11 +2368,16 @@ body.kiosk-mode .kiosk-exit-btn {
         
         if (type === 'in') {
             try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch(e){}
-            speakText(`${s.name} 등원 완료`);
+            
+            // [수정] 등원 멘트: 더 정중하게
+            speakText(`${s.name} 등원 완료하였습니다.`);
+            
             await updateDoc(doc(db, "students", id), { attendanceLog: arrayUnion(now) });
             if(s.phone) sendSmsByServer(s.phone.replace(/-/g,''), `[미래엔수학] ${s.name} 학생이 ${timeStr}에 등원했습니다.`);
         } else {
-            speakText(`${s.name} 하원 완료`);
+            // [수정] 하원 멘트: 따뜻하고 친절하게
+            speakText(`${s.name}, 오늘 하루도 수고하셨어요.`);
+            
             await updateDoc(doc(db, "students", id), { attendanceOutLog: arrayUnion(now) });
             if(s.phone) sendSmsByServer(s.phone.replace(/-/g,''), `[미래엔수학] ${s.name} 학생이 ${timeStr}에 하원했습니다.`);
         }
@@ -2690,7 +2696,7 @@ body.kiosk-mode .kiosk-exit-btn {
 
         const u = new SpeechSynthesisUtterance(txt);
         u.lang = 'ko-KR'; 
-        u.rate = 1.0; // 속도 (1.0이 보통)
+        u.rate = 2.0; // 속도 (1.0이 보통)
         u.pitch = 1.0; // 톤 (1.0이 보통)
         u.volume = 1.0; // 볼륨 최대
         
