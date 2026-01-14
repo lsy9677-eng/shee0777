@@ -2658,54 +2658,70 @@ body.kiosk-mode .kiosk-exit-btn {
     };
 
 // =========================================================
-    // [수정] 모바일 강력 호환 오디오/TTS 시스템
+    // [수정] 모바일 강력 호환 오디오/TTS 시스템 (최종 완성본)
     // =========================================================
     
-    // 1. 오디오 컨텍스트를 미리 생성 (모바일 잠금 해제용)
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx = new AudioContext();
+    let voices = []; // 목소리 목록 저장용
 
-    // 2. 소리 엔진 깨우기 (화면을 처음 터치할 때 실행)
+    // 1. 목소리 목록 미리 불러오기 (비동기 로딩 대처 - 이게 중요합니다!)
+    function loadVoices() {
+        voices = window.speechSynthesis.getVoices();
+    }
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices(); // 초기 실행
+
+    // 2. 소리 엔진 깨우기 (화면 터치 시 무조건 실행)
     function unlockAudio() {
         if (audioCtx.state === 'suspended') {
-            audioCtx.resume().then(() => {
-                console.log("Audio Context unlocked!");
-            });
+            audioCtx.resume().then(() => console.log("Audio Resumed"));
         }
-        // 빈 소리를 한번 재생해서 스피커 권한 획득
+        // 무음 오디오 재생으로 권한 획득
         const buffer = audioCtx.createBuffer(1, 1, 22050);
         const source = audioCtx.createBufferSource();
         source.buffer = buffer;
         source.connect(audioCtx.destination);
         source.start(0);
 
-        // 이벤트 리스너 제거 (한 번만 실행하면 됨)
+        // 이벤트 제거 (한 번만 실행)
         document.body.removeEventListener('click', unlockAudio);
         document.body.removeEventListener('touchstart', unlockAudio);
     }
-
-    // 문서 로드 시 터치 이벤트에 '소리 깨우기' 연결
+    // 터치 이벤트에 연결
     document.body.addEventListener('click', unlockAudio);
     document.body.addEventListener('touchstart', unlockAudio);
-   // 3. [수정됨] 음성 안내 (TTS) - 끊김 방지 및 즉시 재생
+
+
+    // 3. [수정] 음성 안내 (목소리 강제 지정 + 속도 0.8)
     function speakText(txt) {
         if(!window.speechSynthesis) return;
         
-        // 기존에 말하고 있던 게 있다면 즉시 멈춤 (밀림 방지)
+        // 기존 음성 취소 (겹침 방지)
         window.speechSynthesis.cancel(); 
 
         const u = new SpeechSynthesisUtterance(txt);
         u.lang = 'ko-KR'; 
-        u.rate = 0.8; // 속도 (1.0이 보통)
-        u.pitch = 1.0; // 톤 (1.0이 보통)
-        u.volume = 1.0; // 볼륨 최대
         
+        // ▼ 속도 조절: 0.8 (차분하고 친절한 속도)
+        u.rate = 0.8;  
+        u.pitch = 1.0; 
+        u.volume = 1.0; 
+
+        // [핵심] 한국어 목소리를 찾아 강제로 지정 (모바일 호환성 해결)
+        if (voices.length === 0) voices = window.speechSynthesis.getVoices();
+        const koVoice = voices.find(v => v.lang.includes('ko') || v.lang.includes('KR'));
+        if (koVoice) u.voice = koVoice;
+
+        // [버그 방지] 가비지 컬렉터가 음성을 끊는 것 방지 (중요)
+        window.currentUtterance = u; 
+        u.onend = () => { window.currentUtterance = null; };
+
         window.speechSynthesis.speak(u);
     }
 
-    // 4. [수정됨] 성공 효과음 (맑은 딩동 소리)
+    // 4. 성공 효과음 (맑은 딩동 소리)
     function playSuccessSound() {
-        // 혹시라도 오디오가 잠겨있으면 다시 품
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
         const osc = audioCtx.createOscillator();
@@ -2714,19 +2730,17 @@ body.kiosk-mode .kiosk-exit-btn {
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
-        // "딩~" 하는 맑은 소리 구현
-        osc.type = 'sine'; // 부드러운 사인파
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // 도(C5)
-        osc.frequency.exponentialRampToValueAtTime(1046.5, audioCtx.currentTime + 0.1); // 도(C6)로 올라감
+        osc.type = 'sine'; 
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // 도
+        osc.frequency.exponentialRampToValueAtTime(1046.5, audioCtx.currentTime + 0.1); // 높은 도
 
-        // 소리 크기 : 컸다가 작아짐 (여운)
+        // 볼륨: 부드럽게 사라짐
         gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
 
         osc.start();
         osc.stop(audioCtx.currentTime + 0.5);
     }
-
     // UI 피드백 (Toast)
     function showToast(msg, type) {
         const t = document.getElementById('toast');
@@ -2752,8 +2766,7 @@ body.kiosk-mode .kiosk-exit-btn {
         if(e.target == document.getElementById('scheduleModal')) document.getElementById('scheduleModal').style.display = "none";
     };
 
-    // 로드 시 실행
-// [수정] 새로고침/접속 시 무조건 '출석부 모드'로 고정
+    // [수정] 새로고침/접속 시 무조건 '출석부 모드'로 고정
     window.onload = () => {
         // 1. 강제로 키오스크 모드 클래스 주입
         document.body.classList.add('kiosk-mode');
