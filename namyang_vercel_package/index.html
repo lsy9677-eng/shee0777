@@ -13,23 +13,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         /* [디자인] 수학/학원 테마 (Teal & Clean White) */
-:root { 
-  --primary: #2563eb;        /* 신뢰감 있는 블루 */
-  --primary-dark: #1e40af;
-  --secondary: #eef2ff;
-  --accent: #f59e0b;         /* 포인트 (주의/강조) */
-  --danger: #ef4444;
-
-  --bg: #f8fafc;             /* 전체 배경 */
-  --white: #ffffff;
-
-  --text-main: #0f172a;      /* 본문 */
-  --text-sub: #475569;       /* 보조 텍스트 */
-}
-
+        :root { 
+          --primary: #2563eb;        /* 신뢰감 있는 블루 */
+          --primary-dark: #1e40af;
+          --secondary: #eef2ff;
+          --accent: #f59e0b;         /* 포인트 (주의/강조) */
+          --danger: #ef4444;
+        
+          --bg: #f8fafc;             /* 전체 배경 */
+          --white: #ffffff;
+        
+          --text-main: #0f172a;      /* 본문 */
+          --text-sub: #475569;       /* 보조 텍스트 */
+        }
 
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; -webkit-font-smoothing: antialiased; }
         
@@ -103,36 +103,35 @@
         
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
         .day-name { text-align: center; font-weight: bold; font-size: 12px; padding: 8px; color: var(--text-sub); }
-       /* [수정] 달력 칸 높이 축소 및 디자인 */
-/* [수정] 달력 칸 크기 대폭 축소 (50px -> 30px) */
-.day-cell { 
-    min-height: 30px; /* 높이 줄임 */
-    border: 1px solid #eee; border-radius: 6px; padding: 2px; 
-    position: relative; cursor: pointer; background: white; transition: 0.2s; 
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-}
-.day-num { font-weight: bold; font-size: 11px; margin-bottom: 0; } /* 글자 크기 줄임 */
-.event-dot { width: 4px; height: 4px; border-radius: 50%; margin: 1px; } /* 점 크기 조정 */
+       
+        .day-cell { 
+            min-height: 30px; /* 높이 줄임 */
+            border: 1px solid #eee; border-radius: 6px; padding: 2px; 
+            position: relative; cursor: pointer; background: white; transition: 0.2s; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+        }
+        .day-num { font-weight: bold; font-size: 11px; margin-bottom: 0; }
+        .event-dot { width: 4px; height: 4px; border-radius: 50%; margin: 1px; }
 
-/* [추가] 리스트 보기 모드 버튼 스타일 */
-.view-mode-group { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
-.view-mode-btn { 
-    padding: 6px 12px; border: 1px solid #ddd; background: white; 
-    border-radius: 20px; font-size: 12px; cursor: pointer; color: #555; font-weight: bold;
-}
-.view-mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        /* [추가] 리스트 보기 모드 버튼 스타일 */
+        .view-mode-group { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
+        .view-mode-btn { 
+            padding: 6px 12px; border: 1px solid #ddd; background: white; 
+            border-radius: 20px; font-size: 12px; cursor: pointer; color: #555; font-weight: bold;
+        }
+        .view-mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-/* [수정] 일정 리스트 아이템 디자인 */
-.daily-event-item { 
-    padding: 8px 12px; border-radius: 8px; border: 1px solid #eee; background: #fff;
-    margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; 
-    font-size: 13px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-}
-.event-date-tag { font-size: 11px; color: #888; margin-right: 8px; font-weight: normal; }
+        /* [수정] 일정 리스트 아이템 디자인 */
+        .daily-event-item { 
+            padding: 8px 12px; border-radius: 8px; border: 1px solid #eee; background: #fff;
+            margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; 
+            font-size: 13px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .event-date-tag { font-size: 11px; color: #888; margin-right: 8px; font-weight: normal; }
 
-/* 팝업 내부 스타일 */
-.modal-btn-group { display: flex; gap: 10px; margin-top: 15px; }      
-  .event-birthday { background-color: #f06292; } 
+        /* 팝업 내부 스타일 */
+        .modal-btn-group { display: flex; gap: 10px; margin-top: 15px; }      
+        .event-birthday { background-color: #f06292; } 
         .event-schedule { background-color: var(--primary); } 
         .event-holiday { background-color: var(--danger); }
 
@@ -161,118 +160,319 @@
         .print-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 20px; }
         .print-table th, .print-table td { border: 1px solid #333; padding: 6px; text-align: center; }
         .print-table th { background: #eee; }
-/* 달력 칸 스타일 수정: 텍스트가 넘치지 않게 */
-.event-dot { 
-    display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin: 1px; 
-}
-.dot-schedule { background-color: var(--primary); }
-.dot-birthday { background-color: #f06292; }
+        
+        /* 달력 칸 스타일 수정: 텍스트가 넘치지 않게 */
+        .event-dot { 
+            display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin: 1px; 
+        }
+        .dot-schedule { background-color: var(--primary); }
+        .dot-birthday { background-color: #f06292; }
 
-/* 달력 하단 일정 리스트 디자인 */
-#dateDetailArea {
-    margin-top: 20px; padding: 15px; background: #fff; border-radius: 12px;
-    border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-}
-.detail-header { 
-    font-weight: 800; font-size: 15px; color: var(--primary-dark); 
-    margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;
-}
-.daily-event-item {
-    display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 6px 0;
-}
-.daily-event-item i { width: 15px; text-align: center; }
-/* 성적 그래프 컨테이너 */
-.chart-container { margin: 20px 0; padding: 15px; background: #fff; border-radius: 12px; border: 1px solid #eee; }
-.score-input-group { display: flex; gap: 5px; margin-bottom: 10px; }
+        /* 달력 하단 일정 리스트 디자인 */
+        #dateDetailArea {
+            margin-top: 20px; padding: 15px; background: #fff; border-radius: 12px;
+            border: 1px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .detail-header { 
+            font-weight: 800; font-size: 15px; color: var(--primary-dark); 
+            margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;
+        }
+        .daily-event-item {
+            display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 6px 0;
+        }
+        .daily-event-item i { width: 15px; text-align: center; }
+        /* 성적 그래프 컨테이너 */
+        .chart-container { margin: 20px 0; padding: 15px; background: #fff; border-radius: 12px; border: 1px solid #eee; }
+        .score-input-group { display: flex; gap: 5px; margin-bottom: 10px; }
 
-/* 월말 정산 알림 섹션 */
-.settlement-box { background: #e3f2fd; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #bbdefb; }
-.settlement-title { font-weight: bold; color: #1565c0; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
-/* [수정] 리스트 영역을 바둑판(Grid)으로 변경 */
-/* [모바일 최적화] 리스트 영역을 바둑판(Grid)으로 변경 */
-#studentListArea {
+        /* 월말 정산 알림 섹션 */
+        .settlement-box { background: #e3f2fd; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #bbdefb; }
+        .settlement-title { font-weight: bold; color: #1565c0; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+        
+        /* [모바일 최적화] 리스트 영역을 바둑판(Grid)으로 변경 */
+        #studentListArea {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* 카드 너비 자동 조절 */
+            gap: 10px; /* 카드 사이 간격 */
+            padding: 5px;
+        }
+
+        /* 학생 카드 디자인 (네모난 ID카드 스타일) */
+        .student-card { 
+            background: #fff; border: 1px solid #eceff1; border-radius: 15px; 
+            padding: 15px 10px; 
+            display: flex; flex-direction: column; /* 위아래로 정렬 */
+            align-items: center; justify-content: center; text-align: center;
+            cursor: pointer; transition: 0.2s; position: relative; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 160px; /* 카드 높이 고정 */
+        }
+        .student-card:active { transform: scale(0.98); } /* 클릭 시 눌리는 효과 */
+
+        /* 체크박스 위치 (왼쪽 위) */
+        .chk-wrapper { position: absolute; top: 8px; left: 8px; z-index: 10; }
+
+        /* 프로필 사진 크기 조정 */
+        .profile-wrapper { width: 60px; height: 60px; margin-bottom: 8px; }
+        .profile-img { box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid white; }
+
+        /* 텍스트 정리 */
+        .info-area { padding-left: 0 !important; width: 100%; }
+        .info-area div:first-child { font-size: 15px; font-weight: bold; color: #333; margin-bottom: 4px; }
+        .info-area small { display: block; font-size: 11px; color: #888; margin-bottom: 4px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        .grade-tag { font-size: 10px; padding: 2px 6px; }    
+
+        /* [추가] 모달 내부 탭 디자인 */
+        .modal-header-profile { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .modal-tab-nav { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #f5f5f5; }
+        .modal-tab-btn { 
+            flex: 1; padding: 10px 5px; background: none; border: none; font-size: 14px; 
+            font-weight: 600; color: #90a4ae; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; 
+        }
+        .modal-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .modal-tab-pane { display: none; animation: fadeIn 0.3s ease; }
+        .modal-tab-pane.active { display: block; }
+
+        /* 작은 화면에서 버튼들이 꽉 차게 보이도록 조정 */
+        .modal-action-row { display: flex; gap: 8px; margin-top: 10px; }
+        .modal-action-row button { flex: 1; margin: 0 !important; font-size: 13px; padding: 10px 0; }
+        button {
+        min-height: 44px;   /* iOS 권장 터치 영역 */
+        }
+        .student-card,
+        .modal,
+        .container {
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+        .info-area strong {
+        font-weight: 700;
+        }
+
+        .info-area small {
+        color: var(--text-sub);
+        }
+
+        /* ===== 출석부(키오스크) 모드 + 토스트 ===== */
+        :root{ --kiosk-green:#16a34a; --kiosk-amber:#f59e0b; }
+
+        .toast{
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(20,20,20,.92);
+        color:#fff;
+        padding: 12px 14px;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.25);
+        font-size: 14px;
+        line-height: 1.3;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .18s ease, transform .18s ease;
+        z-index: 9999;
+        max-width: calc(100vw - 28px);
+        display:flex;
+        gap:10px;
+        align-items:center;
+        }
+        .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+        .toast .dot{
+        width:10px; height:10px; border-radius:999px; background:#22c55e;
+        flex:0 0 auto;
+        }
+        .toast.error .dot{ background:#ef4444; }
+        .toast.warn .dot{ background:#f59e0b; }
+
+        /* 버튼 전송 애니메이션 */
+        .btn-sending{ position: relative; overflow:hidden; }
+        .btn-sending::after{
+        content:"";
+        position:absolute; inset:0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+        transform: translateX(-100%);
+        animation: shimmer 1.2s infinite;
+        }
+        @keyframes shimmer{ 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+        /* 키오스크 모드: 다른 화면/탭 잠금 */
+        body.kiosk-mode .tabs{ display:none !important; }
+        body.kiosk-mode .page{ display:none !important; }
+        body.kiosk-mode #list.page{ display:block !important; }
+        body.kiosk-mode #register,
+        body.kiosk-mode #calendar{ display:none !important; }
+
+        /* 키오스크 모드: 학생 카드 클릭(상세보기) 방지 */
+        body.kiosk-mode .student-card{ cursor: default !important; }
+/* === [수정] 태블릿/키오스크(출석부) 전용 메탈릭 3D 스타일 === */
+/* === [수정] 태블릿/키오스크(출석부) 전용 메탈릭 3D 스타일 === */
+body.kiosk-mode header, 
+body.kiosk-mode .tabs, 
+body.kiosk-mode .admin-only, 
+body.kiosk-mode .calendar-controls,
+body.kiosk-mode .filter-group { display: none !important; }
+
+body.kiosk-mode #register, 
+body.kiosk-mode #calendar { display: none !important; }
+body.kiosk-mode #list { display: block !important; }
+
+body.kiosk-mode { background: #1c1c1c; }
+
+body.kiosk-mode #studentListArea {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* 카드 너비 자동 조절 */
-    gap: 10px; /* 카드 사이 간격 */
-    padding: 5px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+    padding: 30px;
 }
 
-/* 학생 카드 디자인 (네모난 ID카드 스타일) */
-.student-card { 
-    background: #fff; border: 1px solid #eceff1; border-radius: 15px; 
-    padding: 15px 10px; 
-    display: flex; flex-direction: column; /* 위아래로 정렬 */
-    align-items: center; justify-content: center; text-align: center;
-    cursor: pointer; transition: 0.2s; position: relative; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    height: 160px; /* 카드 높이 고정 */
-}
-.student-card:active { transform: scale(0.98); } /* 클릭 시 눌리는 효과 */
-
-/* 체크박스 위치 (왼쪽 위) */
-.chk-wrapper { position: absolute; top: 8px; left: 8px; z-index: 10; }
-
-/* 프로필 사진 크기 조정 */
-.profile-wrapper { width: 60px; height: 60px; margin-bottom: 8px; }
-.profile-img { box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 2px solid white; }
-
-/* 텍스트 정리 */
-.info-area { padding-left: 0 !important; width: 100%; }
-.info-area div:first-child { font-size: 15px; font-weight: bold; color: #333; margin-bottom: 4px; }
-.info-area small { display: block; font-size: 11px; color: #888; margin-bottom: 4px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-.grade-tag { font-size: 10px; padding: 2px 6px; }    
-
-/* [추가] 모달 내부 탭 디자인 */
-.modal-header-profile { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-.modal-tab-nav { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #f5f5f5; }
-.modal-tab-btn { 
-    flex: 1; padding: 10px 5px; background: none; border: none; font-size: 14px; 
-    font-weight: 600; color: #90a4ae; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; 
-}
-.modal-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-.modal-tab-pane { display: none; animation: fadeIn 0.3s ease; }
-.modal-tab-pane.active { display: block; }
-
-/* 작은 화면에서 버튼들이 꽉 차게 보이도록 조정 */
-.modal-action-row { display: flex; gap: 8px; margin-top: 10px; }
-.modal-action-row button { flex: 1; margin: 0 !important; font-size: 13px; padding: 10px 0; }
-button {
-  min-height: 44px;   /* iOS 권장 터치 영역 */
-}
-.student-card,
-.modal,
-.container {
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-}
-.info-area strong {
-  font-weight: 700;
+/* [핵심] 3D 메탈 카드 */
+body.kiosk-mode .student-card {
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start; /* 위에서부터 정렬 */
+    height: 380px; /* 라벨 공간 확보를 위해 높이 약간 증가 */
+    
+    background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+    border: 3px solid transparent;
+    border-image: linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) 1;
+    /* fallback */
+    border: 2px solid #c5a059;
+    border-bottom: 8px solid #8a6e3d;
+    
+    border-radius: 20px;
+    padding: 30px 20px; /* 내부 여백 조정 */
+    
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.05), 0 20px 40px rgba(0,0,0,0.6);
+    transition: transform 0.15s;
+    position: relative;
+    overflow: hidden;
 }
 
-.info-area small {
-  color: var(--text-sub);
+/* 카드 클릭 애니메이션 (버튼 누를 때 클래스 추가됨) */
+@keyframes card-bump {
+    0% { transform: scale(1); }
+    40% { transform: scale(0.97) translateY(5px); }
+    80% { transform: scale(1.02) translateY(-2px); }
+    100% { transform: scale(1); }
+}
+.card-anim-active {
+    animation: card-bump 0.4s ease-out;
 }
 
+/* 등원 완료 시 스타일 */
+body.kiosk-mode .student-card.arrived {
+    background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+    border-color: #a8ff78;
+    border-bottom-color: #006400;
+}
 
-</style>
+/* 사진 프레임 */
+body.kiosk-mode .profile-wrapper {
+    width: 140px; 
+    height: 140px; 
+    flex-shrink: 0; /* 크기 고정 */
+    background: #000;
+    padding: 4px;
+    border-radius: 20px;
+    box-shadow: 0 0 0 2px #c5a059, 0 10px 20px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+    z-index: 2; /* 텍스트보다 위에 */
+}
+
+body.kiosk-mode .profile-img { 
+    width: 100%; height: 100%; object-fit: cover; 
+    border-radius: 16px; filter: brightness(1.05);
+}
+
+/* 텍스트 영역 */
+body.kiosk-mode .info-area {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+body.kiosk-mode .info-area div:first-child { 
+    font-size: 28px !important;
+    font-weight: 800; 
+    background: linear-gradient(to bottom, #fff 0%, #ccc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 5px;
+}
+body.kiosk-mode .info-area small { 
+    font-size: 14px; color: #e2b170 !important; font-weight: 600; letter-spacing: -0.5px;
+}
+
+/* 버튼 그룹 */
+body.kiosk-mode .kiosk-btn-group { 
+    display: flex; width: 100%; gap: 10px; margin-top: auto; /* 하단으로 밀기 */
+    margin-bottom: 25px; /* 라벨 공간 */
+    z-index: 10;
+}
+body.kiosk-mode .chk-wrapper { display: none; }
+
+.k-btn {
+    flex: 1; padding: 14px 0; border: none; border-radius: 10px;
+    font-size: 16px; font-weight: 800; cursor: pointer; color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3); transition: all 0.2s;
+}
+
+.k-btn-in { 
+    background: linear-gradient(to bottom, #edc988 0%, #d4af37 50%, #997f2e 100%);
+    color: #3e2723; box-shadow: 0 4px 0 #6d4c41, 0 5px 10px rgba(0,0,0,0.3);
+}
+.k-btn-out { 
+    background: linear-gradient(to bottom, #f2f6f8 0%, #d8e1e7 50%, #b5c6d0 100%);
+    color: #37474f; box-shadow: 0 4px 0 #546e7a, 0 5px 10px rgba(0,0,0,0.3);
+}
+.k-btn:active { transform: translateY(4px); box-shadow: none !important; }
+
+/* [수정] 비활성화 버튼 스타일 (누른 후) */
+.k-btn:disabled {
+    background: #444 !important;
+    color: #888 !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    transform: translateY(2px);
+    opacity: 0.7;
+}
+
+/* [수정] 카드 라벨 (하단 중앙 배치) */
+.card-label {
+    position: absolute;
+    bottom: 12px;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 3px;
+    font-weight: bold;
+    pointer-events: none;
+}
+    </style>
 </head>
 <body>
 
 <div class="container">
     <header>
         <h1><i class="fas fa-graduation-cap"></i> 미래엔수학 능동해냄</h1>
+        
         <div class="admin-switch">
-            <label style="margin:0; cursor:pointer; font-weight:normal;">
-                <input type="checkbox" id="adminToggle" onclick="toggleAdminMode()" style="width:auto; margin-right:5px;"> 선생님 모드
-            </label>
-        </div>
+    <label style="margin:0; cursor:pointer; font-weight:normal; margin-right:10px;">
+        <input type="checkbox" id="adminToggle" onclick="toggleAdminMode()" style="width:auto; margin-right:5px;"> 선생님 모드
+    </label>
+    <button id="btnKioskStart" onclick="startKioskMode()" style="display:none; padding:5px 10px; background:#333; color:white; border:none; border-radius:5px; font-size:12px;">
+        <i class="fas fa-tablet-alt"></i> 출석부 모드 시작
+    </button>
+</div>
+
     </header>
     
     <div class="tabs">
         <button class="tab-btn active" onclick="showPage('register')"><i class="fas fa-user-plus"></i> 신규 등록</button>
         <button class="tab-btn" onclick="showPage('list')"><i class="fas fa-users"></i> 원생 관리</button>
         <button class="tab-btn" onclick="showPage('calendar')"><i class="fas fa-calendar-alt"></i> 학습 일정</button>
-
-
     </div>
 
     <div id="register" class="page active">
@@ -584,19 +784,20 @@ button {
     
 
 // ===================== SMS 서버(카페24 알리고) 설정 =====================
-// ⚠️ HTTPS 페이지에서 HTTP로 호출하면(혼합 콘텐츠) 브라우저가 차단할 수 있습니다.
-// 가능한 경우 이 페이지도 http로 열거나, SMS 서버도 https로 동작하게 구성하세요.
-const SMS_SERVER_BASE = "";
+// [주의] 배포된 곳이 https(보안)라면 SMS 서버도 https로 호출해야 합니다.
+const SMS_SERVER_BASE = "http://canyone2302.cafe24app.com"; 
 
 // (권장) 최소 보안키: 서버(web.js)에도 같은 키를 넣고 검증하면 외부 남용을 막을 수 있어요.
 const SMS_CLIENT_KEY = "CHANGE_ME_TO_A_LONG_RANDOM_STRING";
 
 // 서버로 문자 발송(내장 fetch 사용)
 async function sendSmsByServer(receiver, msg) {
-  const res = await fetch(`/api/send-sms`, {
+  const res = await fetch(`${SMS_SERVER_BASE}/send-sms`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",},
+      "Content-Type": "application/json",
+      "x-api-key": SMS_CLIENT_KEY
+    },
     body: JSON.stringify({ receiver, msg })
   });
 
@@ -619,7 +820,7 @@ async function sendSmsByServer(receiver, msg) {
     // 필터 상태
     let currentGradeFilter = 'all'; 
     let calDate = new Date();
-let myChart = null;
+    let myChart = null;
 
     // 띠 순서 -> 학년 순서로 로직 변경
     const gradeOrder = { '미취학': 0, '초등1-2': 1, '초등3-4': 2, '초등5-6': 3, '중등부': 4, '고등부': 5 };
@@ -843,89 +1044,91 @@ window.copyText = (elementId) => {
         filterList();
     };
 
-   // [수정] 리스트 렌더링 함수 (등/하원 버튼 추가됨)
-    window.filterList = () => {
-        const keyword = document.getElementById('searchKeyword').value.toLowerCase();
-        const schoolFilter = document.getElementById('schoolFilter').value;
-        const todayStr = new Date().toDateString();
+   // [수정] 리스트 그리기 함수 (3D 디자인 적용)
+// [수정] 리스트 그리기 (이미 등원했으면 버튼 비활성화)
+window.filterList = () => {
+    let keyword = "";
+    const kioskInput = document.getElementById('kioskSearch');
+    if(document.body.classList.contains('kiosk-mode') && kioskInput) {
+        keyword = kioskInput.value.toLowerCase();
+    } else {
+        const searchInput = document.getElementById('searchKeyword');
+        if(searchInput) keyword = searchInput.value.toLowerCase();
+    }
 
-        let filtered = allStudents.filter(s => {
-            const matchName = s.name.toLowerCase().includes(keyword);
-            const matchSchool = schoolFilter === 'all' || s.school === schoolFilter;
-            
-            let matchGrade = true;
-            if(currentGradeFilter !== 'all') {
-                if(currentGradeFilter === '초등') matchGrade = (s.belt || '').includes('초등');
-                else if(currentGradeFilter === '중등') matchGrade = (s.belt || '').includes('중등');
-                else if(currentGradeFilter === '고등') matchGrade = (s.belt || '').includes('고등');
-                else matchGrade = s.belt === currentGradeFilter;
-            }
-            return matchName && matchSchool && matchGrade;
+    const schoolFilter = document.getElementById('schoolFilter').value;
+    const todayStr = new Date().toDateString();
+    const isKiosk = document.body.classList.contains('kiosk-mode');
+
+    let filtered = allStudents.filter(s => {
+        const matchName = s.name.toLowerCase().includes(keyword);
+        const matchSchool = schoolFilter === 'all' || s.school === schoolFilter;
+        if (isKiosk && keyword === "") return true; 
+        return matchName && matchSchool;
+    });
+
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+    const listArea = document.getElementById('studentListArea');
+    listArea.innerHTML = "";
+    
+    filtered.forEach(s => {
+        const imgSrc = s.photo || "https://via.placeholder.com/150?text=NO+IMAGE";
+        
+        // 오늘 출석 여부 체크
+        const hasAttended = (s.attendanceLog || []).some(log => {
+            const d = log.toDate ? log.toDate() : new Date(log.seconds * 1000);
+            return d.toDateString() === todayStr;
         });
 
-        // 정렬: 학년순 -> 이름순
-        filtered.sort((a, b) => (gradeOrder[a.belt] || 99) - (gradeOrder[b.belt] || 99) || a.name.localeCompare(b.name));
-
-        const listArea = document.getElementById('studentListArea');
-        listArea.innerHTML = "";
+        const div = document.createElement('div');
+        div.className = `student-card ${hasAttended ? 'arrived' : ''}`;
+        div.id = `card-${s.id}`;
         
-        filtered.forEach(s => {
-            const imgSrc = s.photo || "https://via.placeholder.com/60?text=학생";
-            const logs = s.attendanceLog || [];
-            
-            // 오늘 등원 여부 체크
-            const hasAttended = logs.some(log => {
-                const d = log.toDate ? log.toDate() : new Date(log.seconds * 1000);
-                return d.toDateString() === todayStr;
-            });
+        if (isKiosk) {
+            // 등원했으면 버튼 비활성화 처리
+            const disableIn = hasAttended ? 'disabled' : '';
+            const inBtnText = hasAttended ? '완료' : '등원';
 
-            const div = document.createElement('div');
-            div.className = 'student-card';
-            // 출석 완료 시 배경색 살짝 변경
-            if(hasAttended) div.style.background = "#f1f8e9"; 
-            
-            const isChecked = selectedStudentIds.has(s.id) ? "checked" : "";
-            
-            // [변경] 카드 내부에 버튼 그룹 추가
             div.innerHTML = `
-                <div class="chk-wrapper">
-                    <input type="checkbox" class="list-chk" value="${s.id}" ${isChecked} onclick="toggleSelection('${s.id}', event)">
+                <div class="profile-wrapper">
+                    <img src="${imgSrc}" class="profile-img">
                 </div>
                 
-                <div onclick="openDetailById('${s.id}')" style="width:100%; display:flex; flex-direction:column; align-items:center; flex:1;">
-                    <div class="profile-wrapper">
-                        <img src="${imgSrc}" class="profile-img">
-                    </div>
-                    <div class="info-area" style="padding:0; text-align:center;">
-                        <div style="margin-bottom:4px;">
-                            <strong style="font-size:15px; color:#333;">${s.name}</strong>
-                        </div>
-                        <div style="color:#777; font-size:12px;">
-                            ${s.school || '-'} <span class="grade-tag">${s.belt || '미분류'}</span>
-                        </div>
-                    </div>
+                <div class="info-area">
+                    <div>${s.name}</div>
+                    <small>${s.school || '학교미입력'} | ${s.belt || '학년'}</small>
                 </div>
 
-                <div style="display:flex; gap:5px; width:100%; margin-top:10px;">
-                    <button onclick="quickAttendance('${s.id}', 'in', event)" 
-                        style="flex:1; padding:8px 0; border:none; border-radius:6px; 
-                               background:${hasAttended ? '#c8e6c9' : '#e8f5e9'}; 
-                               color:#2e7d32; font-size:12px; font-weight:bold; cursor:pointer; transition:0.2s;">
-                        ${hasAttended ? '<i class="fas fa-check"></i> 완료' : '등원'}
-                    </button>
-                    <button onclick="quickAttendance('${s.id}', 'out', event)" 
-                        style="flex:1; padding:8px 0; border:none; border-radius:6px; 
-                               background:#fff3e0; color:#ef6c00; font-size:12px; font-weight:bold; cursor:pointer; transition:0.2s;">
-                        하원
-                    </button>
+                <div class="kiosk-btn-group">
+                    <button class="k-btn k-btn-in" onclick="quickAttendance('${s.id}', 'in', this)" ${disableIn}>${inBtnText}</button>
+                    <button class="k-btn k-btn-out" onclick="quickAttendance('${s.id}', 'out', this)">하원</button>
+                </div>
+
+                <div class="card-label">ATTENDANCE CARD</div>
+            `;
+        } else {
+            // 관리자 모드
+            div.innerHTML = `
+                <div class="profile-wrapper" onclick="openDetailById('${s.id}')" style="width:55px; height:55px; margin:0;">
+                    <img src="${imgSrc}" class="profile-img" style="border-radius:50%;">
+                </div>
+                <div class="info-area" style="text-align:left; padding-left:15px;">
+                    <div><strong style="color:#333; font-size:16px;">${s.name}</strong> <span class="grade-tag">${s.belt}</span></div>
+                    <div style="font-size:13px; color:#777;">${s.school || '-'} · ${s.phone || '연락처없음'}</div>
+                </div>
+                <div class="chk-wrapper">
+                    <input type="checkbox" class="list-chk" value="${s.id}" onclick="toggleSelection('${s.id}', event)">
                 </div>
             `;
-            listArea.appendChild(div);
-        });
-        updateBulkBtn();
-    };
-
-
+            div.style.flexDirection = "row"; div.style.height = "auto"; div.style.background = "#fff";
+            div.style.border = "1px solid #eceff1"; div.style.borderRadius = "12px"; div.style.padding = "15px";
+            div.style.alignItems = "center"; div.style.boxShadow = "0 2px 5px rgba(0,0,0,0.02)";
+        }
+        
+        listArea.appendChild(div);
+    });
+};
     window.openDetailById = (id) => {
         const s = allStudents.find(st => st.id === id);
         if(s) openDetail(s);
@@ -1361,6 +1564,10 @@ if(logArea) {
 
     // 1. 탭 화면 전환 (이게 없으면 메뉴가 안 눌립니다)
     window.showPage = (id) => {
+        if (window.isKioskMode && window.isKioskMode() && id !== 'list') {
+            return; // 키오스크 모드에서는 원생관리(출석)만 사용
+        }
+
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -1375,30 +1582,32 @@ if(logArea) {
         }
     };
 
-    // 2. 선생님 모드 전환 (비밀번호: 1234)
-    window.toggleAdminMode = async () => {
-        const chk = document.getElementById('adminToggle');
-        if(chk.checked) {
-            // DB에서 비번 가져오거나 기본값 1234 사용
-            let dbPw = "1234";
-            try {
-                const docSnap = await getDoc(doc(db, "settings", "admin"));
-                if (docSnap.exists()) dbPw = docSnap.data().password;
-            } catch(e) {}
+// [수정] 선생님 모드 토글 함수 (출석부 버튼 연동)
+window.toggleAdminMode = async () => {
+    const chk = document.getElementById('adminToggle');
+    const btnKiosk = document.getElementById('btnKioskStart');
+    
+    if(chk.checked) {
+        // DB 비밀번호 확인 로직 (기존 코드 활용)
+        let dbPw = "1234"; 
+        try {
+            const docSnap = await getDoc(doc(db, "settings", "admin"));
+            if (docSnap.exists()) dbPw = docSnap.data().password;
+        } catch(e) {}
 
-            const pw = prompt("관리자 비밀번호를 입력하세요:");
-            if(pw === dbPw) { 
-                document.body.classList.add('show-admin');
-                alert("선생님 모드가 되었습니다.");
-            } else {
-                alert("비밀번호가 틀렸습니다.");
-                chk.checked = false;
-            }
+        const pw = prompt("관리자 비밀번호를 입력하세요:");
+        if(pw === dbPw) { 
+            document.body.classList.add('show-admin');
+            if(btnKiosk) btnKiosk.style.display = 'inline-block'; // [중요] 출석부 버튼 보이기
         } else {
-            document.body.classList.remove('show-admin');
+            alert("비밀번호가 틀렸습니다.");
+            chk.checked = false;
         }
-    };
-
+    } else {
+        document.body.classList.remove('show-admin');
+        if(btnKiosk) btnKiosk.style.display = 'none'; // [중요] 출석부 버튼 숨기기
+    }
+};
     // 3. 비밀번호 변경 기능
     window.changeAdminPassword = async () => {
         const newPw = prompt("새로운 비밀번호를 입력하세요:");
@@ -1484,152 +1693,6 @@ window.onclick = (event) => {
     if (event.target == detailModal) closeModal();
     if (event.target == schedModal) schedModal.style.display = "none";
 };
-    // 1. 카카오 초기화
-    try {
-        if (window.Kakao && !Kakao.isInitialized()) {
-            Kakao.init('0a302951dba10cb82dbfc0b603784155'); 
-        }
-    } catch(e) { console.error("카카오 초기화 에러:", e); }
-
-    // 2. 카카오톡 전송 함수
-    window.sendKakao = () => {
-        const text = document.getElementById('newCounsel').value;
-        if(!text) return alert("전송할 내용을 입력해주세요.");
-        
-        // 관원 정보 가져오기
-        const student = allStudents.find(s => s.id === currentStudentId);
-        const name = student ? student.name : "관원생";
-
-        try {
-            Kakao.Share.sendDefault({
-                objectType: 'text',
-                text: `[${name} 관원생 알림]\n\n${text}`,
-                link: {
-                    mobileWebUrl: 'https://shee-9qs.pages.dev',
-                    webUrl: 'https://shee-9qs.pages.dev',
-                },
-                buttonTitle: '홈페이지 열기',
-            });
-        } catch(err) {
-            alert("전송 실패: " + err);
-        }
-    };
-// ==========================================
-// [여기서부터 복사해서 script 맨 끝에 붙여넣으세요]
-// ==========================================
-
-// 1. [통계 계산] 상세창 열 때 출석률 계산 (누락된 기능 복구)
-window.calcStats = (s) => {
-    const now = new Date();
-    const logs = s.attendanceLog || [];
-    
-    // 이번달 출석
-    const monthCount = logs.filter(ts => {
-        const d = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length;
-
-    // 전체 출석
-    const totalCount = logs.length;
-
-    document.getElementById('statMonth').innerText = (monthCount / 20 * 100).toFixed(0) + "%"; 
-    document.getElementById('statTotal').innerText = totalCount + "회";
-};
-
-// 2. [알림장] 알림장 텍스트 생성 (누락된 기능 복구)
-window.generateNotice = () => {
-    const s = allStudents.find(st => st.id === currentStudentId);
-    if (!s) return;
-    const progress = document.getElementById('dailyProgress').value;
-    const today = new Date().toLocaleDateString();
-
-    const text = `[알림장] ${today}\n\n안녕하세요, ${s.name} 학생의 오늘 학습 내용입니다.\n\n📚 학습 진도:\n${progress || "오늘 예정된 학습을 완료했습니다."}\n\n가정에서도 많은 격려 부탁드립니다.`;
-    
-    document.getElementById('noticePreview').innerText = text;
-};
-
-// 3. [정보 수정] 학생 정보 수정 저장 (누락된 기능 복구)
-window.saveEdit = async () => {
-    const id = document.getElementById('editId').value;
-    if (!id) return;
-
-    try {
-        await updateDoc(doc(db, "students", id), {
-            name: document.getElementById('editName').value,
-            birth: document.getElementById('editBirth').value,
-            belt: document.getElementById('editGrade').value,
-            school: document.getElementById('editSchool').value,
-            gender: document.getElementById('editGender').value,
-            phone: document.getElementById('editParentPhone').value,
-            studentPhone: document.getElementById('editStudentPhone').value,
-            address: document.getElementById('editAddress').value,
-            notes: document.getElementById('editNotes').value
-        });
-        alert("정보가 수정되었습니다.");
-        // 수정된 내용 반영을 위해 리스트 갱신
-        const updated = allStudents.find(s => s.id === id); 
-        if(updated) openDetail(updated); // 상세창 내용 갱신
-    } catch(e) {
-        alert("수정 실패: " + e.message);
-    }
-};
-
-// 4. [신규 등록] 버튼 이벤트 연결 (HTML 본문에 있던거 여기로 이동)
-const addBtn = document.getElementById('addBtn');
-if(addBtn) {
-    addBtn.addEventListener('click', async () => {
-        const name = document.getElementById('regName').value;
-        const phone = document.getElementById('regParentPhone').value;
-        
-        if (!name || !phone) return alert("이름과 학부모 연락처는 필수입니다.");
-
-        const fileInput = document.getElementById('regPhoto');
-        let photoUrl = "";
-        if (fileInput.files[0]) {
-            photoUrl = await resizeImage(fileInput.files[0]);
-        }
-
-        const newStudent = {
-            name: name,
-            birth: document.getElementById('regBirth').value,
-            gender: document.getElementById('regGender').value,
-            school: document.getElementById('regSchool').value,
-            belt: document.getElementById('regGrade').value,
-            phone: phone,
-            studentPhone: document.getElementById('regStudentPhone').value,
-            address: document.getElementById('regAddress').value,
-            notes: document.getElementById('regNotes').value,
-            photo: photoUrl,
-            regDate: serverTimestamp(),
-            attendanceLog: [],
-            counselLog: [],
-            scoreLog: []
-        };
-
-        try {
-            await addDoc(collection(db, "students"), newStudent);
-            alert("학생이 등록되었습니다!");
-            showPage('list');
-        } catch (e) {
-            console.error(e);
-            alert("등록 중 오류 발생: " + e.message);
-        }
-    });
-}
-
-// 5. [닫기] 모달 닫기 기능 강화 (확실하게 닫히도록 수정)
-window.closeModal = () => {
-    document.getElementById('detailModal').style.display = 'none';
-    currentStudentId = null;
-};
-
-// 배경 클릭 시 닫기
-window.onclick = (event) => {
-    const detailModal = document.getElementById('detailModal');
-    const schedModal = document.getElementById('scheduleModal');
-    if (event.target == detailModal) closeModal();
-    if (event.target == schedModal && schedModal) schedModal.style.display = "none";
-};
 
 // 6. [카카오톡] 전송 기능 재설정
 window.sendKakao = () => {
@@ -1681,57 +1744,10 @@ window.editCounselLog = async (index) => {
         alert("수정되었습니다.");
         // UI는 onSnapshot에 의해 자동 갱신됩니다.
     } catch(e) {
-        alert("수정 실패: " + e.message);
+        alert("수정 실패: " + (e?.message || e));
     }
 };
 
-// [추가] 상담 로그 삭제 기능
-window.deleteCounselLog = async (index) => {
-    if (!confirm("정말 이 상담 내역을 삭제하시겠습니까?")) return;
-
-    const s = allStudents.find(st => st.id === currentStudentId);
-    if (!s || !s.counselLog) return;
-
-    // 해당 인덱스의 항목 제외하기
-    const newLogs = s.counselLog.filter((_, i) => i !== index);
-
-    try {
-        await updateDoc(doc(db, "students", currentStudentId), { counselLog: newLogs });
-        alert("삭제되었습니다.");
-    } catch(e) {
-        alert("삭제 실패: " + e.message);
-    }
-};
-
-// [추가] 알림장 내용 복사 기능
-window.copyNotice = () => {
-    const text = document.getElementById('noticePreview').innerText;
-    
-    // 내용이 없거나 기본 문구일 경우 복사 막기
-    if (!text || text.trim() === "" || text.includes("진도를 입력하고")) {
-        return alert("복사할 내용이 없습니다. 먼저 '양식 업데이트'를 눌러주세요.");
-    }
-
-    navigator.clipboard.writeText(text)
-        .then(() => {
-            alert("알림장 내용이 복사되었습니다!");
-        })
-        .catch(err => {
-            alert("복사 실패: " + err);
-        });
-};
-// [추가] 모달 내부 탭 전환 함수
-window.switchModalTab = (tabId, btn) => {
-    // 모든 탭 내용 숨기기
-    document.querySelectorAll('.modal-tab-pane').forEach(p => p.classList.remove('active'));
-    // 선택된 탭 내용 보이기
-    document.getElementById(tabId).classList.add('active');
-    
-    // 모든 버튼 비활성화 스타일
-    document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
-    // 클릭된 버튼 활성화 스타일
-    btn.classList.add('active');
-};
 // [추가] 상담 내역 저장 함수 (신형: 팝업 유지)
 window.addCounselLog = async () => {
     const text = document.getElementById('newCounsel').value;
@@ -1743,72 +1759,177 @@ window.addCounselLog = async () => {
         });
         alert("저장되었습니다.");
         document.getElementById('newCounsel').value = "";
-        // 팝업 닫는 코드를 제거하여 계속 입력 가능하게 변경됨
     } catch(e) { 
         alert("저장 실패: " + e.message); 
     }
 };
-// [추가] 알리고 원터치 문자 전송 함수
-    window.quickAttendance = async (id, type, e) => {
-        // 1. 카드 클릭 이벤트가 겹치지 않게 방지
-        if(e) e.stopPropagation();
-        
-        // 2. 학생 정보 찾기
-        const s = allStudents.find(st => st.id === id);
-        if(!s) return;
-        if(!s.phone) return alert("학부모 연락처가 없습니다.");
 
-        // 3. 메시지 내용 생성
+
+// [수정] 원터치 전송 (카드 애니메이션 + 버튼 영구 비활성화)
+window.quickAttendance = async (id, type, btn) => {
+    // 이미 비활성화면 중단
+    if(btn.disabled) return;
+    
+    const s = allStudents.find(st => st.id === id);
+    if(!s) return;
+
+    // 1. [효과] 카드 흔들림 애니메이션 실행
+    const card = document.getElementById(`card-${id}`);
+    if(card) {
+        card.classList.remove('card-anim-active'); // 리셋
+        void card.offsetWidth; // 리플로우 강제 (애니메이션 재실행용)
+        card.classList.add('card-anim-active');
+    }
+    
+    // 2. 효과음 및 꽃가루
+    playSuccessSound();
+    if (type === 'in') {
+        try { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#F0E68C'] }); } catch(e) {}
+        if(card) card.classList.add('arrived'); 
+    }
+
+    // 3. 버튼 상태 변경 (누르는 즉시 비활성화 & 텍스트 변경)
+    const originalText = btn.innerText;
+    btn.innerText = "전송중..";
+    btn.disabled = true; // [중요] 즉시 비활성화
+
+    try {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
-        let msg = "", confirmMsg = "";
         
+        // 시간 포맷 (오전/오후)
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const period = hours >= 12 ? '오후' : '오전';
+        hours = hours % 12; 
+        hours = hours ? hours : 12;
+        const timeStr = `${period} ${hours}:${minutes}`;
+        
+        const msg = type === 'in' 
+            ? `[미래엔수학] ${s.name} 학생이 ${timeStr}에 교실에 도착하여 학습을 시작합니다.`
+            : `[미래엔수학] ${s.name} 학생이 ${timeStr}에 학습을 마치고 하원합니다.`;
+
+        // DB 저장 (등원인 경우)
         if (type === 'in') {
-            confirmMsg = `${s.name} 학생 등원 처리를 하시겠습니까? (문자 자동발송)`;
-            msg = `[미래엔수학] ${s.name} 학생이 ${timeStr}에 교실에 도착하여 학습을 시작합니다.`;
-        } else {
-            confirmMsg = `${s.name} 학생 하원 문자를 보내시겠습니까? (문자 자동발송)`;
-            msg = `[미래엔수학] ${s.name} 학생이 ${timeStr}에 학습을 마치고 하원합니다.`;
+            await updateDoc(doc(db, "students", id), { attendanceLog: arrayUnion(now) });
         }
 
-        if(!confirm(confirmMsg)) return;
+        // 문자 발송
+        if (s.phone) {
+            fetch(`${SMS_SERVER_BASE}/send-sms`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "x-api-key": SMS_CLIENT_KEY },
+                body: JSON.stringify({ receiver: s.phone.replace(/[^0-9]/g, ''), msg })
+            });
+        }
 
-        // 4. 버튼을 '전송중...' 상태로 변경 (중복 클릭 방지)
-        const btn = e ? e.target : document.getElementById('attendBtn'); // 리스트 버튼 또는 상세창 버튼
-        const originText = btn ? btn.innerText : "";
+        // [중요] 완료 후에도 버튼을 다시 활성화하지 않음 (비활성 유지)
+        btn.innerText = "완료"; 
+        // 하원 버튼 등 다른 버튼을 실수로 누를 수 있으니 
+        // '전송됨' 텍스트를 유지하고 회색 상태(CSS의 :disabled)를 유지합니다.
+
+    } catch (e) {
+        alert("오류: " + e.message);
+        // 오류 시에만 다시 누를 수 있게 복구
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+};// [추가] 효과음 함수 (Web Audio API 사용 - 별도 파일 필요 없음)
+function playSuccessSound() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    
+    // 딩 (미)
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime); 
+    // 동 (솔)
+    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); 
+    
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+}
+
+// [추가] 키오스크 모드 진입
+window.startKioskMode = () => {
+    if (confirm("출석부 모드를 실행합니다. (해제하려면 우측 하단을 클릭하세요)")) {
+        document.body.classList.add('kiosk-mode');
+        // 선생님 모드 체크 해제 및 숨김 처리
+        const chk = document.getElementById('adminToggle');
+        if(chk) chk.checked = false;
+        document.body.classList.remove('show-admin');
         
-        if(btn) {
-            btn.innerText = "전송중...";
-            btn.disabled = true;
-        }
+        filterList(); // 리스트 다시 그리기 (큰 카드로 변경됨)
+    }
+};
 
-        try {
-            // 5. 파이어베이스 DB에 출석 기록 저장 (등원일 경우에만)
-            if(type === 'in') {
-                await updateDoc(doc(db, "students", id), { attendanceLog: arrayUnion(now) });
+// [추가] 키오스크 모드 해제
+window.exitKioskMode = () => {
+    if (!document.body.classList.contains('kiosk-mode')) return;
+    
+    // 비밀번호 확인 (기존 선생님 비번과 동일하게 1234 사용 예시)
+    const pw = prompt("출석부 모드를 종료하려면 비밀번호를 입력하세요:");
+    if (pw === "1234") { 
+        document.body.classList.remove('kiosk-mode');
+        alert("선생님 모드로 돌아왔습니다.");
+        filterList(); // 리스트 원래대로
+    } else if (pw !== null) {
+        alert("비밀번호가 틀렸습니다.");
+    }
+};
+
+// [추가] 검색창 동기화
+window.syncSearch = (val) => {
+    filterList();
+};
+    window.toggleKioskMode = () => {
+        const next = !__kioskMode;
+        if (next) {
+            const ok = confirm("출석부 모드를 켜면 '원생 관리(출석)' 화면만 사용됩니다. 켤까요?");
+            if (!ok) {
+                const kioskChk = document.getElementById('kioskToggle');
+                if (kioskChk) kioskChk.checked = false;
+                return;
             }
-
-            // 6. 서버로 문자 전송 요청 (카페24 알리고 서버)
-            const { ok, data: result } = await sendSmsByServer(
-                s.phone.replace(/[^0-9]/g, ''),
-                msg
-            );
-
-// 7. 결과 처리
-            if(ok) {
-                alert("전송 완료!");
-                if(btn) btn.innerText = type === 'in' ? "✅ 완료" : "하원";
-            } else {
-                alert("전송 실패: " + (result.message || JSON.stringify(result)));
-                if(btn) { btn.innerText = originText; btn.disabled = false; }
-            }
-
-        } catch(err) {
-            console.error(err);
-            alert("오류 발생: " + err.message);
-            if(btn) { btn.innerText = originText; btn.disabled = false; }
         }
+        applyKioskMode(next);
     };
+
+    // 토스트(하단 알림)
+    function showToast(message, type='success', ms=1600) {
+        const toast = document.getElementById('toast');
+        const textEl = document.getElementById('toastText');
+        if (!toast || !textEl) return;
+
+        toast.classList.remove('show','error','warn');
+        if (type === 'error') toast.classList.add('error');
+        if (type === 'warn') toast.classList.add('warn');
+        textEl.textContent = message;
+
+        // reflow
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
+    }
+
+    // 키오스크 모드에서는 상세 팝업을 열지 않게
+    const __openDetailByIdOriginal = window.openDetailById;
+    window.openDetailById = (id) => {
+        if (window.isKioskMode && window.isKioskMode()) return;
+        return __openDetailByIdOriginal ? __openDetailByIdOriginal(id) : undefined;
+    };
+
+    // 최초 로드시 적용
+    window.addEventListener('load', () => applyKioskMode(__kioskMode));
+
 </script>
+
+    <div id="toast" class="toast" aria-live="polite" aria-atomic="true"><span class="dot"></span><span id="toastText"></span></div>
+<div class="exit-trigger" onclick="exitKioskMode()"></div>
 </body>
 </html>
