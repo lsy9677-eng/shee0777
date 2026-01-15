@@ -2636,17 +2636,20 @@ const SMS_API_URL = "/api/send-sms";
   };
 
   // ✅ 이것도 async여야 token 생성 await 가능
-  window.buildNoticeUrl = async function(studentId, target){
+  window.PUBLIC_BASE_URL = window.PUBLIC_BASE_URL || ((location.origin && location.origin !== 'null') ? location.origin : '');
+
+window.buildNoticeUrl = async function(studentId, target){
     const token = await window.createNoticeToken(studentId, target);
 
-    // GitHub Pages처럼 /shee0777/ 하위 경로면 pathname이 필요할 수 있음
-    const base = (location.origin && location.origin !== 'null') ? location.origin : '';
-    const dir  = location.pathname.replace(/\/[^\/]*$/, '/'); // 현재 폴더 경로
+    // ✅ 카톡 인앱/특수 브라우저에서도 안정적으로 열리도록 '절대주소'로 생성
+    const base = (window.PUBLIC_BASE_URL || '').replace(/\/$/, '');
     const page = window.__NOTICE_PAGE_NAME__ || 'notice.html';
 
-    const url = (base ? (base + dir + page) : (dir + page)) + '?token=' + encodeURIComponent(token);
+    // 같은 폴더에 notice.html이 있는 구조 기준
+    const url = base + '/' + page + '?token=' + encodeURIComponent(token);
     return { url, token };
-  };
+  }
+;
 
   // =========================================================
   // [수정] 카카오톡 공유 링크를 notice.html?token=... 으로 보내기
@@ -2656,6 +2659,16 @@ const SMS_API_URL = "/api/send-sms";
 
     const msg = window.generateNotice();
     if(!msg) return;
+
+    // ✅ [중요] 학부모 화면(notice.html)에 보여줄 '오늘의 알림장'을 학생 문서에 저장
+    try {
+      await updateDoc(doc(db, "students", currentStudentId), {
+        lastNotice: msg,
+        lastNoticeAt: serverTimestamp()
+      });
+    } catch(e) {
+      console.warn("lastNotice 저장 실패:", e);
+    }
 
     const share = await window.buildNoticeUrl(currentStudentId, 'parent');
 
