@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>미래엔수학 - 출결/학습 안내</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif;margin:0;background:#0b0f14;color:#e6edf3}
+    .wrap{max-width:920px;margin:0 auto;padding:20px}
+    .card{background:#111826;border:1px solid #223047;border-radius:14px;padding:16px;margin:12px 0}
+    .title{font-size:20px;font-weight:700;margin:0 0 10px}
+    .muted{color:#9fb0c0}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .row>.card{flex:1;min-width:260px}
+    .btn{background:#2b90ff;border:0;color:#06101a;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    input,textarea{width:100%;box-sizing:border-box;background:#0b1220;border:1px solid #223047;color:#e6edf3;border-radius:10px;padding:10px}
+    textarea{min-height:110px;resize:vertical}
+    a{color:#8bd0ff}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#0b1220;border:1px solid #223047;color:#cfe6ff;font-size:12px}
+    .hr{height:1px;background:#223047;margin:12px 0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="title">출결/학습 안내</div>
+      <div id="status" class="muted">불러오는 중…</div>
+      <div class="hr"></div>
+      <div class="muted" style="font-size:13px">
+        * 이 페이지는 카카오톡 공유 링크로 접속했을 때 <b>token</b>으로 학생 정보를 불러옵니다.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <div class="title">학생 정보</div>
+        <div id="studentInfo" class="muted">-</div>
+      </div>
+      <div class="card">
+        <div class="title">이번 달 출석</div>
+        <div id="attInfo" class="muted">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">안내 문구</div>
+      <div id="noticeText" style="white-space:pre-wrap" class="muted">-</div>
+    </div>
+
+    <div class="card">
+      <div class="title">학부모 소통</div>
+      <div class="muted" style="margin-bottom:8px">학부모님 문의/요청 사항을 남겨주세요. (학원에서 확인)</div>
+      <textarea id="msg" placeholder="예) 오늘 숙제 범위를 다시 안내 부탁드려요"></textarea>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button id="sendBtn" class="btn" disabled>메시지 보내기</button>
+        <span id="sendResult" class="muted"></span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // =========================================================
+    // ✅ 중요: 아래 firebaseConfig는 'index(학부모용).html'과 동일해야 합니다.
+    // 현재 파일은 GitHub/Cafe24에 올리기 쉽게 "템플릿"으로 제공됩니다.
+    // =========================================================
+    const firebaseConfig = window.firebaseConfig || {
+      // TODO: 여기에 기존 프로젝트의 firebaseConfig를 그대로 붙여넣어 주세요.
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const $ = (id) => document.getElementById(id);
+
+    function getToken(){
+      const sp = new URLSearchParams(location.search);
+      return sp.get("token");
+    }
+
+    async function resolveStudentId(token){
+      // 1) Firestore 매핑 우선
+      try{
+        const snap = await getDoc(doc(db, "noticeTokens", token));
+        if(snap.exists()) return snap.data().studentId;
+      }catch(e){
+        console.warn("Firestore noticeTokens 조회 실패:", e);
+      }
+
+      // 2) file:// 같은 동일 기기 테스트용 localStorage fallback
+      try{
+        const raw = localStorage.getItem("noticeToken:" + token);
+        if(raw){
+          const obj = JSON.parse(raw);
+          return obj.studentId;
+        }
+      }catch(e){}
+
+      return null;
+    }
+
+    function calcThisMonthAttendance(attendanceLog){
+      const now = new Date();
+      const logs = (attendanceLog || []).map(ts => {
+        if(ts && ts.toDate) return ts.toDate();
+        if(ts && ts.seconds) return new Date(ts.seconds * 1000);
+        return new Date(ts);
+      }).filter(d => !isNaN(d));
+      return logs.filter(d => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()).length;
+    }
+
+    async function load(){
+      const token = getToken();
+      if(!token){
+        $("status").innerText = "접속 토큰이 없습니다. (링크가 잘못되었어요)";
+        return;
+      }
+
+      $("status").innerText = "토큰 확인 중…";
+      const studentId = await resolveStudentId(token);
+      if(!studentId){
+        $("status").innerText = "토큰이 만료되었거나 찾을 수 없습니다.";
+        return;
+      }
+
+      $("status").innerText = "학생 정보 불러오는 중…";
+      // ✅ 학생 문서 경로는 기존 구조에 맞게 조정하세요.
+      // 대부분: students 컬렉션에 학생 문서가 있음.
+      const sSnap = await getDoc(doc(db, "students", studentId));
+      if(!sSnap.exists()){
+        $("status").innerText = "학생 문서를 찾을 수 없습니다. (students/" + studentId + ")";
+        return;
+      }
+
+      const s = sSnap.data();
+      $("status").innerHTML = '불러오기 완료 <span class="badge">token: ' + token + '</span>';
+
+      const name = s.name || "(이름 없음)";
+      const grade = s.grade || s.level || "";
+      $("studentInfo").innerText = `${name} ${grade ? "(" + grade + ")" : ""}`;
+
+      const monthCnt = calcThisMonthAttendance(s.attendanceLog || []);
+      $("attInfo").innerText = `${monthCnt}회`;
+
+      // 안내문(원하시면 필드명 변경)
+      const noticeText = s.noticeText || s.notice || s.lastNotice || "";
+      $("noticeText").innerText = noticeText || "(등록된 안내문이 없습니다)";
+
+      // 메시지 전송 활성화
+      $("sendBtn").disabled = false;
+      $("sendBtn").onclick = async () => {
+        const msg = $("msg").value.trim();
+        if(!msg) return;
+        $("sendBtn").disabled = true;
+        $("sendResult").innerText = "전송 중…";
+        try{
+          await addDoc(collection(db, "parentMessages"), {
+            token,
+            studentId,
+            message: msg,
+            createdAt: serverTimestamp()
+          });
+          $("sendResult").innerText = "전송 완료 ✅";
+          $("msg").value = "";
+        }catch(e){
+          console.error(e);
+          $("sendResult").innerText = "전송 실패(권한/규칙 확인)";
+        }finally{
+          $("sendBtn").disabled = false;
+        }
+      };
+    }
+
+    load();
+  </script>
+</body>
+</html>
