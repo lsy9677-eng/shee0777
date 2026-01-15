@@ -64,15 +64,22 @@
     // ✅ 중요: 아래 firebaseConfig는 'index(학부모용).html'과 동일해야 합니다.
     // 현재 파일은 GitHub/Cafe24에 올리기 쉽게 "템플릿"으로 제공됩니다.
     // =========================================================
-    const firebaseConfig = window.firebaseConfig || {
-      // TODO: 여기에 기존 프로젝트의 firebaseConfig를 그대로 붙여넣어 주세요.
-      apiKey: "",
-      authDomain: "",
-      projectId: "",
-      storageBucket: "",
-      messagingSenderId: "",
-      appId: ""
+// =========================================================
+    // ✅ 수정됨: index.html의 설정값을 그대로 복사해왔습니다.
+    // =========================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDPLl5y5xMBL07yLyQDU185qfYLa4c3yv4",
+      authDomain: "namyang-f3a98.firebaseapp.com",
+      projectId: "namyang-f3a98",
+      storageBucket: "namyang-f3a98.firebasestorage.app",
+      messagingSenderId: "641432133626",
+      appId: "1:641432133626:web:4d31e36d5dbb0db4df4e43",
+      measurementId: "G-23L6KZERMF"
     };
+
+    // (아래 import 부분은 그대로 두셔도 됩니다)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
