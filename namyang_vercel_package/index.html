@@ -1613,7 +1613,7 @@ body.kiosk-mode .kiosk-exit-btn {
     // =========================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     // enableIndexedDbPersistence가 포함된 import문 하나만 남깁니다.
-    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, getDoc, setDoc, arrayUnion, serverTimestamp, query, orderBy, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, getDoc, updateDoc, setDoc, arrayUnion, serverTimestamp, query, orderBy, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDPLl5y5xMBL07yLyQDU185qfYLa4c3yv4",
@@ -2592,62 +2592,115 @@ const SMS_API_URL = "/api/send-sms";
         const text = document.getElementById('noticePreview').innerText;
         navigator.clipboard.writeText(text).then(()=>alert("복사됨"));
     };
+        // ===== [알림장 문자 발송] =====
     window.sendNoticeSms = () => {
         const s = allStudents.find(st => st.id === currentStudentId);
         if(!s || !s.phone) return alert("연락처 없음");
         const msg = window.generateNotice();
-        location.href = `sms:${s.phone.replace(/-/g,'')}?body=${encodeURIComponent(msg)}`;
+        location.href = `sms:${(s.phone||'').replace(/[^0-9]/g,'')}?body=${encodeURIComponent(msg)}`;
     };
-    window.sendNoticeKakao = () => {
-        if (window.Kakao && !Kakao.isInitialized()) Kakao.init('0a302951dba10cb82dbfc0b603784155'); 
+
+    // =========================================================
+    // [추가] 카카오 공유용 토큰 & URL 생성 (token -> Firestore 매핑)
+    // - 카톡으로 공유되는 링크는 notice.html?token=... 형태
+    // - notice.html에서 token으로 학생 정보를 조회하여 보여줌
+    // =========================================================
+    window.__NOTICE_PAGE_NAME__ = 'notice.html';
+
+    window.createNoticeToken = async function(studentId, target){
+        const token =
+            Date.now().toString(36) + '-' +
+            Math.random().toString(36).slice(2, 10);
+
+        // 같은 기기에서 file://로 테스트할 때도 notice.html이 token을 찾을 수 있도록 저장
+        try {
+            localStorage.setItem('noticeToken:' + token, JSON.stringify({
+                studentId: studentId,
+                target: target,
+                createdAt: new Date().toISOString()
+            }));
+        } catch(e) {}
+
+        // ✅ 실제 공유(다른 폰/기기)에서도 열리게 Firestore에 저장
+        try {
+            await setDoc(doc(db, "noticeTokens", token), {
+                studentId: studentId,
+                target: target,
+                createdAt: serverTimestamp()
+            });
+        } catch(e) {
+            console.warn("noticeTokens 저장 실패(권한/규칙 확인):", e);
+        }
+
+        return token;
+    };
+
+    window.buildNoticeUrl = async function(studentId, target){
+        const token = await window.createNoticeToken(studentId, target);
+
+        // cafe24/도메인에서 돌릴 땐 location.origin이 정상
+        // PC에서 파일로 실행(file://)할 땐 origin이 null일 수 있으니 상대경로로도 동작하게 처리
+        const base = (location.origin && location.origin !== 'null') ? location.origin : '';
+        const page = window.__NOTICE_PAGE_NAME__ || 'notice.html';
+
+        const url = (base ? (base + '/' + page) : page) + '?token=' + encodeURIComponent(token);
+        return { url, token };
+    };
+
+    // =========================================================
+    // [수정] 카카오톡 공유 링크를 notice.html?token=... 으로 보내기
+    // =========================================================
+    window.sendNoticeKakao = async () => {
+        if (window.Kakao && !Kakao.isInitialized()) Kakao.init('0a302951dba10cb82dbfc0b603784155');
         const msg = window.generateNotice();
+        const share = await window.buildNoticeUrl(currentStudentId, 'parent');
+
         try {
             Kakao.Share.sendDefault({
-                objectType: 'text', text: msg,
-                link: { mobileWebUrl: 'https://map.naver.com', webUrl: 'https://map.naver.com' },
-                buttonTitle: '학원정보'
+                objectType: 'text',
+                text: msg,
+                link: { mobileWebUrl: share.url, webUrl: share.url },
+                buttonTitle: '출결/학습 안내 보기'
             });
         } catch(e) { alert(e); }
     };
 
+    // ✅ 학생 / 부모 카카오톡 공유
+    window.sendKakaoToTarget = async function (target) {
+        if (!window.Kakao) {
+            alert("카카오 SDK 로드 실패");
+            return;
+        }
 
-// ✅ 학생 / 부모 카카오톡 공유
-window.sendKakaoToTarget = function (target) {
-    if (!window.Kakao) {
-        alert("카카오 SDK 로드 실패");
-        return;
-    }
+        if (!Kakao.isInitialized()) {
+            Kakao.init('0a302951dba10cb82dbfc0b603784155');
+        }
 
-    if (!Kakao.isInitialized()) {
-        alert("카카오 초기화 안됨");
-        return;
-    }
+        const s = allStudents.find(st => st.id === currentStudentId);
+        if (!s) {
+            alert("학생 정보 없음");
+            return;
+        }
 
-    const s = allStudents.find(st => st.id === currentStudentId);
-    if (!s) {
-        alert("학생 정보 없음");
-        return;
-    }
+        const share = await window.buildNoticeUrl(currentStudentId, target);
 
-    const who = target === 'parent' ? '학부모님' : '학생';
-    const msg =
-        `[미래엔수학]\n` +
-        `${who}께 안내드립니다.\n\n` +
-        `${s.name} 학생 관련 안내입니다.\n` +
-        `궁금하신 점은 언제든지 문의 주세요 😊`;
+        const who = target === 'parent' ? '학부모님' : '학생';
+        const msg =
+            `[미래엔수학]\n` +
+            `${who}께 안내드립니다.\n\n` +
+            `${s.name} 학생 출결/학습 안내 링크입니다.\n` +
+            `궁금하신 점은 언제든지 문의 주세요 😊`;
 
-    Kakao.Share.sendDefault({
-        objectType: 'text',
-        text: msg,
-        link: {
-            mobileWebUrl: location.origin,
-            webUrl: location.origin
-        },
-        buttonTitle: '학원 바로가기'
-    });
-};
+        Kakao.Share.sendDefault({
+            objectType: 'text',
+            text: msg,
+            link: { mobileWebUrl: share.url, webUrl: share.url },
+            buttonTitle: '출결/학습 안내 보기'
+        });
+    };
 
-  // [수정됨] 월말 정산/교육비 안내 양식 (자동 계산 + 계좌 양식 포함)
+
+// [수정됨] 월말 정산/교육비 안내 양식 (자동 계산 + 계좌 양식 포함)
     window.generateSettlement = () => {
         const s = allStudents.find(st => st.id === currentStudentId);
         const now = new Date();
