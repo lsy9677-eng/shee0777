@@ -1644,10 +1644,12 @@ body.kiosk-mode .kiosk-exit-btn {
     // =========================================================
     const SMS_SERVER_BASE = "http://canyone2302.cafe24app.com"; 
     const SMS_CLIENT_KEY = "CHANGE_ME_TO_A_LONG_RANDOM_STRING";
+const SMS_API_URL = "/api/send-sms";
+
 
     async function sendSmsByServer(receiver, msg) {
       try {
-          const res = await fetch(`${SMS_SERVER_BASE}/send-sms`, {
+          const res = await fetch(SMS_API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-api-key": SMS_CLIENT_KEY },
             body: JSON.stringify({ receiver, msg })
