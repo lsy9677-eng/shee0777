@@ -2609,11 +2609,42 @@ const SMS_API_URL = "/api/send-sms";
             });
         } catch(e) { alert(e); }
     };
-    // ✅ [추가] HTML onclick 연결용 함수 (학생/부모 공용)
+
+
+// ✅ 학생 / 부모 카카오톡 공유
 window.sendKakaoToTarget = function (target) {
-    // target: 'student' | 'parent'
-    // 지금 구조에서는 동일한 알림장 전송
-    window.sendNoticeKakao();
+    if (!window.Kakao) {
+        alert("카카오 SDK 로드 실패");
+        return;
+    }
+
+    if (!Kakao.isInitialized()) {
+        alert("카카오 초기화 안됨");
+        return;
+    }
+
+    const s = allStudents.find(st => st.id === currentStudentId);
+    if (!s) {
+        alert("학생 정보 없음");
+        return;
+    }
+
+    const who = target === 'parent' ? '학부모님' : '학생';
+    const msg =
+        `[미래엔수학]\n` +
+        `${who}께 안내드립니다.\n\n` +
+        `${s.name} 학생 관련 안내입니다.\n` +
+        `궁금하신 점은 언제든지 문의 주세요 😊`;
+
+    Kakao.Share.sendDefault({
+        objectType: 'text',
+        text: msg,
+        link: {
+            mobileWebUrl: location.origin,
+            webUrl: location.origin
+        },
+        buttonTitle: '학원 바로가기'
+    });
 };
 
   // [수정됨] 월말 정산/교육비 안내 양식 (자동 계산 + 계좌 양식 포함)
