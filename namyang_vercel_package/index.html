@@ -2609,6 +2609,13 @@ const SMS_API_URL = "/api/send-sms";
             });
         } catch(e) { alert(e); }
     };
+    // ✅ [추가] HTML onclick 연결용 함수 (학생/부모 공용)
+window.sendKakaoToTarget = function (target) {
+    // target: 'student' | 'parent'
+    // 지금 구조에서는 동일한 알림장 전송
+    window.sendNoticeKakao();
+};
+
   // [수정됨] 월말 정산/교육비 안내 양식 (자동 계산 + 계좌 양식 포함)
     window.generateSettlement = () => {
         const s = allStudents.find(st => st.id === currentStudentId);
