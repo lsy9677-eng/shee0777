@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -2636,17 +2636,19 @@ const SMS_API_URL = "/api/send-sms";
   };
 
   // ✅ 이것도 async여야 token 생성 await 가능
-  window.buildNoticeUrl = async function(studentId, target){
-    const token = await window.createNoticeToken(studentId, target);
+window.PUBLIC_BASE_URL = 'https://shee0777-difn.vercel.app';
 
-    // GitHub Pages처럼 /shee0777/ 하위 경로면 pathname이 필요할 수 있음
-    const base = (location.origin && location.origin !== 'null') ? location.origin : '';
-    const dir  = location.pathname.replace(/\/[^\/]*$/, '/'); // 현재 폴더 경로
-    const page = window.__NOTICE_PAGE_NAME__ || 'notice.html';
+window.buildNoticeUrl = async function(studentId, target){
+  const token = await window.createNoticeToken(studentId, target);
 
-    const url = (base ? (base + dir + page) : (dir + page)) + '?token=' + encodeURIComponent(token);
-    return { url, token };
-  };
+  // ✅ 카톡 인앱/특수 브라우저에서도 안정적으로 열리도록 '절대주소'로 생성
+  const base = (window.PUBLIC_BASE_URL || '').replace(/\/$/, '');
+  const page = window.__NOTICE_PAGE_NAME__ || 'notice.html';
+
+  // 같은 폴더에 notice.html이 있는 구조 기준
+  const url = base + '/' + page + '?token=' + encodeURIComponent(token);
+  return { url, token };
+};
 
   // =========================================================
   // [수정] 카카오톡 공유 링크를 notice.html?token=... 으로 보내기
