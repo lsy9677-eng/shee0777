@@ -2701,30 +2701,35 @@ const SMS_API_URL = "/api/send-sms";
    // ============================================================
     // [최종 수정] 카톡 전송 (현재 접속한 주소를 자동으로 감지!)
     // ============================================================
+// ============================================================
+    // [최종 수정] 카톡 전송 (현재 주소 자동 감지 + parent.html 연결)
+    // ============================================================
     window.sendNoticeKakao = async () => {
         if (!window.Kakao) return alert("카카오 SDK 로드 실패");
-        if (!Kakao.isInitialized()) Kakao.init('0a302951dba10cb82dbfc0b603784155'); // 본인 키 확인
+        if (!Kakao.isInitialized()) Kakao.init('0a302951dba10cb82dbfc0b603784155'); 
         
         const s = allStudents.find(st => st.id === currentStudentId);
         const text = document.getElementById('dailyProgress').value;
         if(!text) return alert("내용을 입력해주세요.");
 
-        // 1. DB에 내용 저장
+        // 1. DB에 알림 저장 (기록용 + 학부모 조회용)
         try {
             await updateDoc(doc(db, "students", currentStudentId), { 
                 lastNotice: text,
+                // 상담 내역에도 자동 추가 (히스토리)
                 counselLog: arrayUnion({ date: new Date().toLocaleDateString(), text: "[알림장] " + text })
             });
         } catch(e) { console.log("저장 오류:", e); }
 
-        // 2. [핵심] 링크 주소 만들기 (현재 주소 기준!)
-        // 'index.html' 글자를 빼고 'parent.html'을 붙입니다.
+        // 2. [핵심] 링크 만들기 (현재 주소 기준!)
+        // 현재 켜져있는 페이지 주소(index.html)를 parent.html로 바꿔치기합니다.
         // 예: https://새주소.vercel.app/index.html -> https://새주소.vercel.app/parent.html
         const currentUrl = location.href; 
+        // 주소 끝에 index.html이 있든 없든, 폴더 경로까지만 자르고 parent.html을 붙입니다.
         const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
         const parentUrl = `${baseUrl}/parent.html`; 
 
-        console.log("만들어진 링크:", parentUrl); // 확인용 로그
+        console.log("생성된 링크:", parentUrl);
 
         // 3. 카톡 보내기
         try {
@@ -2732,7 +2737,7 @@ const SMS_API_URL = "/api/send-sms";
                 objectType: 'feed',
                 content: {
                     title: `[미래엔수학] ${s.name} 학생 알림장 📢`,
-                    description: `${text.slice(0, 100)}${text.length > 100 ? '...' : ''}\n\n👇 아래 버튼을 눌러 확인하세요.`,
+                    description: `${text.slice(0, 100)}${text.length > 100 ? '...' : ''}\n\n👇 아래 버튼을 눌러 확인하세요.\n(학부모님 전화번호로 접속)`,
                     imageUrl: 'https://shee0777.vercel.app/nam-512.png', 
                     link: { mobileWebUrl: parentUrl, webUrl: parentUrl }
                 },
