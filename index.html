@@ -2648,32 +2648,7 @@ const SMS_API_URL = "/api/send-sms";
     };
 
    
-  // =========================================================
-  // [추가] 카카오 공유용 토큰 & URL 생성 (token -> Firestore 매핑)
-  // =========================================================
-  window.__NOTICE_PAGE_NAME__ = 'notice.html';
 
-
-
-
-
-    // ✅ 실제 공유(다른 폰/기기)에서도 열리게 Firestore에 저장
-    try {
-      await setDoc(doc(db, "noticeTokens", token), {
-        studentId: studentId,
-        target: target,
-        createdAt: serverTimestamp()
-      });
-    } catch(e) {
-      console.warn("noticeTokens 저장 실패(권한/규칙 확인):", e);
-    }
-
-    return token;
-  };
-
-  // ✅ 이것도 async여야 token 생성 await 가능
-  window.buildNoticeUrl = async function(studentId, target){
-    const token = await window.createNoticeToken(studentId, target);
 
 
 
