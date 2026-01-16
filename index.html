@@ -2653,8 +2653,7 @@ const SMS_API_URL = "/api/send-sms";
   // =========================================================
   window.__NOTICE_PAGE_NAME__ = 'notice.html';
 
-  // ✅ 배포 주소(카톡 링크 고정)
-  window.PUBLIC_BASE_URL = 'https://shee07009.vercel.app';
+
 
   // ✅ async로 바꿔야 await 사용 가능
   window.createNoticeToken = async function(studentId, target){
@@ -2699,17 +2698,18 @@ const SMS_API_URL = "/api/send-sms";
 
   // =========================================================
 // ============================================================
-   // [최종 수정] 카톡 전송 (고정 링크 + 전화번호 로그인 안내)
+   // ============================================================
+    // [최종 수정] 카톡 전송 (현재 접속한 주소를 자동으로 감지!)
+    // ============================================================
     window.sendNoticeKakao = async () => {
         if (!window.Kakao) return alert("카카오 SDK 로드 실패");
-        if (!Kakao.isInitialized()) Kakao.init('0a302951dba10cb82dbfc0b603784155'); 
+        if (!Kakao.isInitialized()) Kakao.init('0a302951dba10cb82dbfc0b603784155'); // 본인 키 확인
         
         const s = allStudents.find(st => st.id === currentStudentId);
         const text = document.getElementById('dailyProgress').value;
         if(!text) return alert("내용을 입력해주세요.");
 
-        // 1. DB에 알림 저장 (학부모가 볼 데이터)
-        // 상담 내역에도 '알림장'이라고 표시해서 자동 저장 (히스토리용)
+        // 1. DB에 내용 저장
         try {
             await updateDoc(doc(db, "students", currentStudentId), { 
                 lastNotice: text,
@@ -2717,31 +2717,34 @@ const SMS_API_URL = "/api/send-sms";
             });
         } catch(e) { console.log("저장 오류:", e); }
 
-        // 2. 링크 생성 (parent.html로 고정!)
-        const baseUrl = location.origin + location.pathname.replace('index.html', '');
-        const cleanBase = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
-        const parentUrl = `${cleanBase}parent.html`; // 토큰 X, 심플!
+        // 2. [핵심] 링크 주소 만들기 (현재 주소 기준!)
+        // 'index.html' 글자를 빼고 'parent.html'을 붙입니다.
+        // 예: https://새주소.vercel.app/index.html -> https://새주소.vercel.app/parent.html
+        const currentUrl = location.href; 
+        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+        const parentUrl = `${baseUrl}/parent.html`; 
 
-        // 3. 카톡 전송
+        console.log("만들어진 링크:", parentUrl); // 확인용 로그
+
+        // 3. 카톡 보내기
         try {
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
                     title: `[미래엔수학] ${s.name} 학생 알림장 📢`,
-                    description: `${text}\n\n👇 아래 버튼을 눌러 전체 기록을 확인하세요.\n(학부모님 전화번호로 접속 가능합니다)`,
-                    imageUrl: 'https://shee0777.vercel.app/nam-512.png',
+                    description: `${text.slice(0, 100)}${text.length > 100 ? '...' : ''}\n\n👇 아래 버튼을 눌러 확인하세요.`,
+                    imageUrl: 'https://shee0777.vercel.app/nam-512.png', 
                     link: { mobileWebUrl: parentUrl, webUrl: parentUrl }
                 },
                 buttons: [
                     {
-                        title: '학습기록장 보기',
+                        title: '학부모 전용앱 열기',
                         link: { mobileWebUrl: parentUrl, webUrl: parentUrl }
                     }
                 ]
             });
         } catch(e) { alert("전송 실패: " + e); }
     };
-
 
 
 // [수정됨] 월말 정산/교육비 안내 양식 (자동 계산 + 계좌 양식 포함)
