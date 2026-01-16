@@ -1,5 +1,5 @@
 // [수정] 버전 업그레이드 (v2 -> v3) & parent.html 추가
-const CACHE_NAME = 'namyang-pwa-v3';
+const CACHE_NAME = 'namyang-pwa-v4';
 
 const urlsToCache = [
   './',
