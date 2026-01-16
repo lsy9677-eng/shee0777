@@ -2655,20 +2655,7 @@ const SMS_API_URL = "/api/send-sms";
 
 
 
-  // ✅ async로 바꿔야 await 사용 가능
-  window.createNoticeToken = async function(studentId, target){
-    const token =
-      Date.now().toString(36) + '-' +
-      Math.random().toString(36).slice(2, 10);
 
-    // 같은 기기에서 file://로 테스트할 때도 notice.html이 token을 찾을 수 있도록 저장
-    try {
-      localStorage.setItem('noticeToken:' + token, JSON.stringify({
-        studentId: studentId,
-        target: target,
-        createdAt: new Date().toISOString()
-      }));
-    } catch(e) {}
 
     // ✅ 실제 공유(다른 폰/기기)에서도 열리게 Firestore에 저장
     try {
@@ -2688,23 +2675,16 @@ const SMS_API_URL = "/api/send-sms";
   window.buildNoticeUrl = async function(studentId, target){
     const token = await window.createNoticeToken(studentId, target);
 
-    // ✅ 카톡 인앱/특수 브라우저에서도 안정적으로 열리도록 '절대주소'로 생성
-    const base = (window.PUBLIC_BASE_URL || '').replace(/\/$/, '');
-    const page = window.__NOTICE_PAGE_NAME__ || 'notice.html';
 
-    const url = base + '/' + page + '?token=' + encodeURIComponent(token);
-    return { url, token };
-  };
 
-  // =========================================================
-// ============================================================
-   // ============================================================
-    // [최종 수정] 카톡 전송 (현재 접속한 주소를 자동으로 감지!)
-    // ============================================================
-// ============================================================
+
     // [최종 수정] 카톡 전송 (현재 주소 자동 감지 + parent.html 연결)
     // ============================================================
+    // ============================================================
+    // [최종 수정] 카톡 전송 (현재 접속 주소 자동 감지)
+    // ============================================================
     window.sendNoticeKakao = async () => {
+        // 1. 카카오 SDK 로드 확인
         if (!window.Kakao) return alert("카카오 SDK 로드 실패");
         if (!Kakao.isInitialized()) Kakao.init('0a302951dba10cb82dbfc0b603784155'); 
         
@@ -2712,32 +2692,39 @@ const SMS_API_URL = "/api/send-sms";
         const text = document.getElementById('dailyProgress').value;
         if(!text) return alert("내용을 입력해주세요.");
 
-        // 1. DB에 알림 저장 (기록용 + 학부모 조회용)
+        // 2. 현재 접속한 주소를 기반으로 링크 생성 (절대 틀릴 수 없음)
+        // 예: https://abc.vercel.app/index.html -> https://abc.vercel.app/parent.html
+        let currentUrl = location.href;
+        
+        // 주소 끝에 /index.html이 붙어있다면 제거
+        if (currentUrl.endsWith('index.html')) {
+            currentUrl = currentUrl.replace('index.html', '');
+        }
+        // 주소 끝에 /가 없다면 추가
+        if (!currentUrl.endsWith('/')) {
+            currentUrl += '/';
+        }
+        
+        const parentUrl = currentUrl + 'parent.html';
+        
+        // [확인용] 화면에 경고창으로 링크를 보여줍니다. (테스트 후 주석 처리하세요)
+        // alert("생성된 링크: " + parentUrl); 
+
+        // 3. DB 저장
         try {
             await updateDoc(doc(db, "students", currentStudentId), { 
                 lastNotice: text,
-                // 상담 내역에도 자동 추가 (히스토리)
                 counselLog: arrayUnion({ date: new Date().toLocaleDateString(), text: "[알림장] " + text })
             });
         } catch(e) { console.log("저장 오류:", e); }
 
-        // 2. [핵심] 링크 만들기 (현재 주소 기준!)
-        // 현재 켜져있는 페이지 주소(index.html)를 parent.html로 바꿔치기합니다.
-        // 예: https://새주소.vercel.app/index.html -> https://새주소.vercel.app/parent.html
-        const currentUrl = location.href; 
-        // 주소 끝에 index.html이 있든 없든, 폴더 경로까지만 자르고 parent.html을 붙입니다.
-        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-        const parentUrl = `${baseUrl}/parent.html`; 
-
-        console.log("생성된 링크:", parentUrl);
-
-        // 3. 카톡 보내기
+        // 4. 카톡 전송
         try {
             Kakao.Share.sendDefault({
                 objectType: 'feed',
                 content: {
                     title: `[미래엔수학] ${s.name} 학생 알림장 📢`,
-                    description: `${text.slice(0, 100)}${text.length > 100 ? '...' : ''}\n\n👇 아래 버튼을 눌러 확인하세요.\n(학부모님 전화번호로 접속)`,
+                    description: `${text.slice(0, 100)}${text.length > 100 ? '...' : ''}\n\n👇 버튼을 눌러 전체 기록을 확인하세요.\n(학부모님 전화번호로 접속)`,
                     imageUrl: 'https://shee0777.vercel.app/nam-512.png', 
                     link: { mobileWebUrl: parentUrl, webUrl: parentUrl }
                 },
@@ -2750,7 +2737,6 @@ const SMS_API_URL = "/api/send-sms";
             });
         } catch(e) { alert("전송 실패: " + e); }
     };
-
 
 // [수정됨] 월말 정산/교육비 안내 양식 (자동 계산 + 계좌 양식 포함)
     window.generateSettlement = () => {
